@@ -1,0 +1,83 @@
+.inputContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border: solid 1px var(--foreground-color);
+  margin-bottom: 20px;
+}
+
+.inputContainer input {
+  width: 300px;
+  height: 25px;
+  padding-left: 5px;
+  background: none;
+  outline: none;
+  font-family: 'Arial';
+  border: none;
+  color: var(--foreground-color);
+  font-size: 15px;
+  z-index: 2;
+}
+
+.inputLabel {
+  color: var(--foreground-color);
+  position: absolute;
+  padding-left: 5px;
+  font-family: 'Roboto';
+  font-weight: 700;
+  font-size: 12px;
+  animation-name: labelUp;
+  animation-duration: 0.15s;
+  animation-fill-mode: forwards;
+}
+
+.placeHolder {
+  color: var(--foreground-color);
+  position: absolute;
+  padding-left: 5px;
+  font-family: 'Arial';
+  font-size: 15px;
+  animation-name: labelDown;
+  animation-duration: 0.15s;
+  animation-fill-mode: forwards;
+  user-select: none;
+}
+
+.inputTools {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.counter {
+  color: var(--foreground-color);
+  font-family: 'Arial';
+  font-size: 12px;
+  position: absolute;
+  right: 0;
+  bottom: -30px;
+}
+
+/* .inputContainer p {
+  color: var(--foreground-color);
+  font-family: 'Arial';
+  font-size: 14px;
+  margin: 0;
+} */
+
+@keyframes labelUp {
+  from {
+    top: 0;
+  }
+  to {
+    top: -17px;
+  }
+}
+
+@keyframes labelDown {
+  from {
+    top: -17px;
+  }
+  to {
+    top: 5.5px;
+  }
+}

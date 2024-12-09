@@ -1,0 +1,178 @@
+.userContainer {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 70px;
+  padding-right: 80px;
+}
+
+.userInfo {
+  display: flex;
+  justify-content: center;
+  gap: 70px;
+}
+
+.userInfo img {
+  width: 150px;
+  height: 150px;
+  border-radius: 100px;
+}
+
+.userStats div {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 15px;
+}
+
+.userStats {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.userStats h2 {
+  margin: 0;
+  color: var(--foreground-color);
+  font-family: 'Montserrat';
+  font-weight: 500;
+}
+
+.userStats h3 {
+  margin: 0;
+  color: var(--foreground-color);
+  font-size: 15px;
+  font-family: 'Roboto';
+  font-weight: 500;
+}
+
+.userStats button {
+  height: 28px;
+  background-color: var(--foreground-color);
+  border: solid 1px var(--foreground-color);
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.userStats p {
+  margin: 0px;
+  color: var(--foreground-color);
+  font-family: 'Rubik';
+}
+
+.userStats button:hover {
+  background: none;
+  color: var(--foreground-color);
+  border: solid 1px var(--foreground-color);
+}
+
+.moreOptionsButton {
+  cursor: pointer;
+}
+
+.moreOptionsButton img {
+  height: 25px;
+  width: 25px;
+}
+.divider {
+  height: 1px;
+  width: 600px;
+  background-color: rgb(82, 82, 82);
+}
+
+.dividerContainer {
+  margin-top: 80px;
+  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.buttonBar {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.buttonBar button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--foreground-color);
+  gap: 5px;
+  font-family: 'Roboto';
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.buttonBar img {
+  width: 20px;
+  height: 20px;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.indicator {
+  margin-top: 5px;
+  height: 2px;
+  width: 100%;
+  border-radius: 50px;
+  background-color: var(--foreground-color);
+  animation-name: indicator;
+  animation-duration: 0.3s;
+}
+@keyframes indicator {
+  from {
+    width: 0px;
+  }
+}
+.buttonBar a {
+  text-decoration: none;
+}
+.uploadPhotoSuggest {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.uploadPhotoSuggest img {
+  width: 50px;
+}
+
+.uploadPhotoSuggest h1 {
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  margin-bottom: 5px;
+  font-size: 25px;
+}
+
+.uploadPhotoSuggest h2 {
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  margin-top: 5px;
+  font-size: 18px;
+}
+
+.uploadPhotoSuggest p {
+  color: var(--foreground-color);
+  margin-top: 0px;
+  font-family: 'Rubik';
+  cursor: pointer;
+  user-select: none;
+}
+
+.uploadPhotoSuggest p:hover {
+  text-decoration: underline;
+}
