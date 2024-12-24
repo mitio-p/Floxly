@@ -1,0 +1,30 @@
+.gridContainer {
+  max-width: 600px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  row-gap: 5px;
+  overflow-y: auto;
+  margin-bottom: 85px;
+}
+
+.gridContainer img {
+  width: 32.5%;
+  object-fit: cover;
+  aspect-ratio: 1/1;
+}
+
+.createContainer {
+  width: 32.5%;
+  aspect-ratio: 1/1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(57, 57, 57);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.createContainer:hover {
+  background-color: rgb(78, 78, 78);
+}

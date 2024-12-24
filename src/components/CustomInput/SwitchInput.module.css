@@ -1,0 +1,43 @@
+.inputContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.inputContainer label {
+  font-family: 'Roboto';
+  color: var(--foreground-color);
+}
+
+.switchContainerPassive {
+  width: 48px;
+  height: 24px;
+  background-color: rgb(40, 40, 40);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 2px;
+  padding-right: 2px;
+  justify-content: start;
+}
+
+.switchContainerActive {
+  width: 48px;
+  height: 24px;
+  background-color: var(--foreground-color);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  position: relative;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.circle {
+  width: 22px;
+  height: 22px;
+  background-color: rgb(86, 86, 86);
+  border-radius: 20px;
+}

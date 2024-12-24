@@ -1,0 +1,154 @@
+.dialogContainer {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  animation-name: fadeIn;
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.dialogContentContainer {
+  background-color: var(--dialog-background-color);
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+.dialogTitle {
+  width: 100%;
+  text-align: center;
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-size: 20px;
+  border-bottom: solid 1px rgb(80, 80, 80);
+  margin-top: 8px;
+  margin-bottom: 0px;
+  padding-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.firstStep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 700px;
+  height: 500px;
+  position: relative;
+  padding-bottom: 50px;
+}
+
+.firstStep img {
+  width: 90px;
+}
+
+.firstStep h3 {
+  color: var(--foreground-color);
+  font-family: 'Inter';
+  font-size: 25px;
+  user-select: none;
+}
+
+.firstStep input {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  opacity: 0;
+}
+
+.firstStep label {
+  width: 140px;
+  height: 30px;
+  border-radius: 4px;
+  background-color: var(--foreground-color);
+  font-family: 'Roboto';
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.firstStep label:hover {
+  filter: brightness(1.1);
+}
+
+.secondStep {
+  display: flex;
+  gap: 10px;
+  padding-right: 10px;
+  align-items: center;
+}
+
+.secondStep img {
+  max-width: 800px;
+  height: 800px;
+  object-fit: cover;
+}
+
+.secondStep form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 20px;
+  align-items: center;
+}
+
+.extraOptions {
+  display: flex;
+  align-items: end;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.backButton {
+  margin: 0px;
+  position: absolute;
+  left: 20px;
+  cursor: pointer;
+}
+
+.closeContainer {
+  position: absolute;
+  top: 10px;
+  right: 30px;
+  border-radius: 20px;
+  z-index: 2;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 7px;
+  transition: all 0.15s;
+}
+
+.closeContainer:hover {
+  background-color: rgba(255, 255, 255, 0.53);
+}
+
+.closeContainer img {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes fadeIn {
+  to {
+    background-color: rgba(0, 0, 0, 0.484);
+  }
+}

@@ -1,0 +1,23 @@
+.sideBar {
+  min-width: 300px;
+  height: 100vh;
+  padding: 10px;
+  padding-top: 50px;
+  padding-left: 30px;
+}
+
+.sideBar h1 {
+  color: var(--foreground-color);
+  margin: 0;
+  font-size: 25px;
+  font-weight: 600;
+  font-family: 'Rubik';
+  margin-bottom: 40px;
+}
+
+.sideBar ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
