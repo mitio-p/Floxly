@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import classes from './Input.module.css';
 
-export default function Input({ label, maxCharacters, enableEmoji, enableCounter, isRequired, ...props }) {
+const Input = forwardRef(function Input(
+  { label, maxCharacters, enableEmoji, enableCounter, isTextArea, isRequired, errorMessage, ...props },
+  ref
+) {
   const [isFocused, setFocused] = useState(false);
   const [counter, setCounter] = useState(0);
   const [inputValue, setInputValue] = useState('');
@@ -10,8 +13,6 @@ export default function Input({ label, maxCharacters, enableEmoji, enableCounter
     setCounter(event.target.value.length);
     setInputValue(event.target.value);
   }
-
-  useEffect(() => {}, []);
 
   return (
     <div className={classes.inputContainer}>
@@ -24,19 +25,41 @@ export default function Input({ label, maxCharacters, enableEmoji, enableCounter
           label
         )}
       </label>
-      <input
-        type="text"
-        {...props}
-        required={isRequired}
-        maxLength={maxCharacters || 100}
-        onChange={handleInputChange}
-        onFocus={() => {
-          setFocused(true);
-        }}
-        onBlur={() => {
-          setFocused(false);
-        }}
-      />
+      {isTextArea ? (
+        <textarea
+          type="text"
+          {...props}
+          ref={ref}
+          required={isRequired}
+          maxLength={maxCharacters || 100}
+          onChange={handleInputChange}
+          onFocus={() => {
+            setFocused(true);
+          }}
+          onBlur={() => {
+            setFocused(false);
+          }}
+        />
+      ) : (
+        <input
+          type="text"
+          {...props}
+          ref={ref}
+          required={isRequired}
+          maxLength={maxCharacters || 100}
+          onChange={handleInputChange}
+          onFocus={() => {
+            setFocused(true);
+          }}
+          onBlur={() => {
+            setFocused(false);
+          }}
+        />
+      )}
+      {enableEmoji && <div className={classes.emojiContainer}></div>}
+
+      {errorMessage && <p className={classes.error}>{errorMessage}</p>}
+
       {enableCounter && (
         <p className={classes.counter}>
           {counter}/{maxCharacters || 100}
@@ -44,4 +67,6 @@ export default function Input({ label, maxCharacters, enableEmoji, enableCounter
       )}
     </div>
   );
-}
+});
+
+export default Input;

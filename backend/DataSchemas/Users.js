@@ -19,7 +19,9 @@ const usersSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now(), immutable: true },
   forgotPasswordToken: String,
   refreshTokens: Array,
-  privateAccount: Boolean,
+  privateAccount: { type: Boolean, default: false },
+  notifications: { type: Array, default: [] },
+  followRequestUsers: { type: Array, default: [] },
 });
 
 module.exports = mongoose.model('users', usersSchema);

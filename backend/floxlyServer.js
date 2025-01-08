@@ -46,7 +46,7 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
       gallery: userGallery.length,
     };
 
-    if (fetchedUser._id === req.user._id) {
+    if (fetchedUser._id.toString() === req.user._id.toString()) {
       publicUserInfo.gallery = userGallery;
       publicUserInfo.posts = await PostsSchema.find({ author: fetchedUser.username });
       publicUserInfo.topics = await TopicsSchema.find({ author: fetchedUser.username });
@@ -60,7 +60,11 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
 
     const isFollowing = fetchedUser.followers.includes(req.user._id.toString());
 
-    res.status(200).json({ user: publicUserInfo, isFollowing: isFollowing });
+    res.status(200).json({
+      user: publicUserInfo,
+      isFollowing: isFollowing,
+      isRequested: fetchedUser.followRequestUsers.includes(req.user._id.toString()),
+    });
   } else {
     res.sendStatus(404);
   }
@@ -78,11 +82,29 @@ app.get('/user/follow/:username', gatherUserInfo, async (req, res) => {
   ) {
     if (!targetUser.privateAccount) {
       targetUser.followers.push(fetchedUser._id.toString());
+      targetUser.notifications.push({
+        type: 'followMessage',
+        from: fetchedUser._id.toString(),
+        date: Date.now(),
+        isRead: false,
+      });
       fetchedUser.following.push(targetUser._id.toString());
       targetUser.save();
       fetchedUser.save();
       res.sendStatus(200);
+    } else {
+      targetUser.followRequestUsers.push(fetchedUser._id.toString());
+      targetUser.notifications.push({
+        type: 'followRequest',
+        from: fetchedUser._id.toString(),
+        date: Date.now(),
+        isRead: false,
+      });
+      targetUser.save();
+      res.sendStatus(200);
     }
+  } else {
+    res.sendStatus(400);
   }
 });
 
@@ -139,6 +161,70 @@ app.post('/user/uploadImageToGallery', upload.single('photoFile'), gatherUserInf
     .catch(() => {
       res.sendStatus(500);
     });
+});
+
+app.post('/user/updateUserInfo', upload.single('photo'), gatherUserInfo, async (req, res) => {
+  const formData = req.body;
+
+  const bucketName = 'user-profile-pictures-floxly1';
+
+  if (formData.username || formData.fullName || formData.bio || req.file) {
+    const fetchedUser = await UserSchema.findById(req.user._id);
+
+    if (req.file) {
+      const objectKey = crypto.randomBytes(10).toString('hex') + req.file.originalname;
+      const params = {
+        Bucket: bucketName,
+        Key: objectKey,
+        Body: req.file.buffer,
+      };
+      await s3.putObject(params).promise();
+      fetchedUser.profilePicture = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`;
+    }
+
+    if (formData?.username) {
+      const duplcatedUser = await UserSchema.findOne({ username: formData.username });
+      if (duplcatedUser) {
+        return res.status(400).send({
+          errors: { username: 'This username is already taken' },
+        });
+      }
+    }
+    Object.keys(formData).forEach(async (key) => {
+      formData[key] ? (fetchedUser[key] = formData[key]) : null;
+    });
+    fetchedUser.save();
+    res.json({
+      success: { message: 'User profile updated successfully!' },
+    });
+  } else {
+    res.status(400).send({
+      error: { message: 'Enter at least one field to update the profile!' },
+    });
+  }
+});
+
+app.get('/user/cancelRequest/:username', gatherUserInfo, async (req, res) => {
+  const fetchedUser = await UserSchema.findOne({ username: req.params.username });
+  if (fetchedUser.followRequestUsers.includes(req.user._id)) {
+    const userIndex = fetchedUser.followRequestUsers.indexOf(req.user._id);
+    fetchedUser.followRequestUsers.splice(userIndex, 1);
+    fetchedUser.notifications = fetchedUser.notifications.filter(
+      (notification) => notification.from !== req.user._id.toString()
+    );
+    fetchedUser.save();
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+app.get('/users/search/:query', async (req, res) => {
+  const query = req.params.query;
+  const searchResult = await UserSchema.find({ username: { $regex: query, $options: 'i' } }).select(
+    'username profilePicture fullName -_id'
+  );
+  res.json(searchResult);
 });
 
 app.listen(4000);

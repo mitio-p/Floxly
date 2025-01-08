@@ -1,0 +1,42 @@
+.globalContainer {
+  width: 100%;
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.globalContainer h1 {
+  margin: 0;
+  font-family: 'Rubik';
+  color: var(--foreground-color);
+  margin-bottom: 20px;
+  text-align: start;
+}
+
+.globalContainer h2 {
+  color: var(--foreground-color);
+  font-family: 'Inter';
+  margin-top: 0;
+  margin-bottom: 2px;
+}
+
+.globalContainer h3 {
+  color: var(--foreground-color);
+  font-family: 'Inter';
+  font-size: 12px;
+  user-select: none;
+}
+
+.opitonContainer {
+  width: 550px;
+}
+
+.option {
+  min-width: 300px;
+  border: solid 1px var(--border-color);
+  border-radius: 5px;
+  padding: 8px;
+  display: flex;
+}

@@ -1,4 +1,4 @@
-import { json, Link, useLoaderData, useNavigate, useSearchParams } from 'react-router-dom';
+import { json, Link, useLoaderData, useNavigate, useRevalidator, useSearchParams } from 'react-router-dom';
 import classes from './UserPage.module.css';
 import { useContext, useState } from 'react';
 import UserCTX from '../../Context/UserCTX';
@@ -20,6 +20,10 @@ export default function UserPage() {
   const [searchParams] = useSearchParams();
   const [followers, setFollowers] = useState(loaderData.user.followers.length);
   const [pictureDialog, setPictureDialog] = useState(false);
+  const revalidator = useRevalidator();
+
+  console.log(loaderData);
+
   const [optionDialog, setOptionDialog] = useState({
     options: [
       {
@@ -43,8 +47,7 @@ export default function UserPage() {
       credentials: 'include',
     });
     if (response.ok) {
-      setFollowing(true);
-      setFollowers((prev) => prev + 1);
+      revalidator.revalidate();
     }
   }
   async function handleUnfollow() {
@@ -56,6 +59,16 @@ export default function UserPage() {
       setFollowers((prev) => prev - 1);
     }
   }
+
+  async function handleCancelRequest() {
+    const response = await authFetch(`http://localhost:4000/user/cancelRequest/${loaderData.user.username}`, {
+      credentials: 'include',
+    });
+    if (response.ok) {
+      revalidator.revalidate();
+    }
+  }
+
   return (
     <main className={classes.userContainer}>
       <OptionsDialog options={optionDialog.options} isOpen={optionDialog.isOpen} setOpen={setOptionDialog} />
@@ -79,11 +92,19 @@ export default function UserPage() {
                 >
                   Edit Profile
                 </button>{' '}
-                <button>Settings</button>
+                <button
+                  onClick={() => {
+                    navigate('/settings');
+                  }}
+                >
+                  Settings
+                </button>
               </>
             ) : (
-              <button onClick={isFollowing ? handleUnfollow : handleFollow}>
-                {isFollowing ? 'Unfollow' : 'Follow'}
+              <button
+                onClick={isFollowing ? handleUnfollow : loaderData.isRequested ? handleCancelRequest : handleFollow}
+              >
+                {isFollowing ? 'Unfollow' : loaderData.isRequested ? 'Cancel request' : 'Follow'}
               </button>
             )}
             {!isCurrentUser && (
@@ -134,7 +155,7 @@ export default function UserPage() {
           </Link>
         </div>
       </div>
-      {typeof loaderData.user.gallery !== String ? (
+      {typeof loaderData.user.gallery !== 'number' ? (
         loaderData.user.gallery.length < 1 ? (
           isCurrentUser ? (
             <div className={classes.uploadPhotoSuggest}>
@@ -177,7 +198,6 @@ export default function UserPage() {
 
 export async function loader({ params }) {
   const username = params.username;
-  console.log(tokenSevice.getToken());
   const response = await authFetch(`http://localhost:4000/user/${username}`, { credentials: 'include' });
 
   if (response.ok) {

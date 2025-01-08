@@ -1,0 +1,26 @@
+.result {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+}
+
+.resultUserContainer h1 {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.resultUserContainer h2 {
+  font-size: 14px;
+  margin: 0;
+  font-family: 'Rubik';
+  color: var(--foreground-color);
+  font-weight: 400;
+}
+
+.result img {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+}

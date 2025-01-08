@@ -89,6 +89,21 @@ app.post('/auth/login', async (req, res) => {
 
 app.get('/auth/user', gatherUserInfo, async (req, res) => {
   const foundUser = await UsersSchema.findOne({ email: req.user.email });
+  let updatedNotifications = [];
+
+  for (const notification of foundUser.notifications) {
+    if (notification.type === 'followRequest') {
+      const sender = await UsersSchema.findById(notification.from);
+      notification.from = {
+        profilePicture: sender.profilePicture,
+        username: sender.username,
+      };
+      updatedNotifications.push(notification);
+    } else {
+      updatedNotifications.push(notification);
+    }
+  }
+
   if (foundUser) {
     res.status(200).json({
       username: foundUser.username,
@@ -100,6 +115,8 @@ app.get('/auth/user', gatherUserInfo, async (req, res) => {
       preferredHashtags: foundUser.preferredHashtags,
       createdAt: foundUser.createdAt,
       profilePicture: foundUser.profilePicture,
+      privateAccount: foundUser.privateAccount,
+      notifications: updatedNotifications.reverse(),
     });
   } else {
     res.sendStatus(404);
@@ -213,6 +230,22 @@ app.get('/auth/refreshToken', async (req, res) => {
     expires: accessTokenExpDate,
   });
   res.sendStatus(200);
+});
+
+app.post('/auth/enablePrivateAccount', gatherUserInfo, async (req, res) => {
+  const fetchedUser = await UsersSchema.findById(req.user._id);
+
+  fetchedUser.privateAccount = true;
+  fetchedUser.save();
+  res.json({ success: { message: 'Your account is now private!' } });
+});
+
+app.post('/auth/disablePrivateAccount', gatherUserInfo, async (req, res) => {
+  const fetchedUser = await UsersSchema.findById(req.user._id);
+
+  fetchedUser.privateAccount = false;
+  fetchedUser.save();
+  res.json({ success: { message: 'Your account is not private!' } });
 });
 
 app.listen(3000);

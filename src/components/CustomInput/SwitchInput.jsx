@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import classes from './SwitchInput.module.css';
 
-export default function SwitchInput({ label, onInputChange }) {
-  const [isClicked, setClicked] = useState(false);
+export default function SwitchInput({ label, onInputChange, defaultValue, value }) {
+  const [isClicked, setClicked] = useState(defaultValue || false);
+
+  useEffect(() => {
+    setClicked(value);
+  }, [value]);
   return (
     <div className={classes.inputContainer}>
       <label>{label}</label>

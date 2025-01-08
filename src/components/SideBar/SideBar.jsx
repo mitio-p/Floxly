@@ -74,7 +74,10 @@ export default function SideBar({ title, isRootSideBar, options }) {
         {options.map((option) =>
           option.place === 'end' ? (
             option.type !== 'sectionTitle' ? (
-              <li onClick={option.type === 'button' ? () => option.onClick(navigate) : undefined}>
+              <li
+                key={option.route ? option.route + generateRandomString(10) : generateRandomString(10)}
+                onClick={option.type === 'button' ? () => option.onClick(navigate) : undefined}
+              >
                 <img src={option.icon} />
                 <p>{option.label}</p>
               </li>

@@ -15,6 +15,10 @@ import ResetPasswordPage, {
 } from './pages/ResetPasswordPage/ResetPasswordPage';
 import ErrorElement from './components/ErrorElement/ErrorElement';
 import SettingsLayout from './pages/SettingsPage/SettingsLayout';
+import EditProfilePage, { action as editProfileAction } from './pages/SettingsPage/EditProfilePage';
+import AccountPrivacyPage from './pages/SettingsPage/AccountPrivacyPage';
+import NotificationPage from './pages/NotificationsPage/NotificationsPage';
+import SearchPage from './pages/SearchPage/SearchPage';
 
 const router = createBrowserRouter([
   {
@@ -29,12 +33,14 @@ const router = createBrowserRouter([
       },
       {
         path: 'search',
+        element: <SearchPage />,
       },
       {
         path: 'messages',
       },
       {
         path: 'notifications',
+        element: <NotificationPage />,
       },
       {
         path: 'create',
@@ -48,6 +54,10 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         element: <SettingsLayout />,
+        children: [
+          { path: 'edit', element: <EditProfilePage />, action: editProfileAction },
+          { path: 'privacy', element: <AccountPrivacyPage /> },
+        ],
       },
     ],
   },

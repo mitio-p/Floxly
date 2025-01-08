@@ -1,0 +1,42 @@
+.notificationContainerFollowRequest {
+  width: 98%;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.notificationContainerFollowRequest img {
+  height: 90%;
+  border-radius: 100px;
+}
+
+.notificationContainerFollowRequest p {
+  margin: 0;
+  color: var(--foreground-color);
+  font-family: 'Rubik';
+  text-align: start;
+  padding-left: 20px;
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.buttonContainer button {
+  background-color: var(--foreground-color);
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-radius: 5px;
+  border: none;
+  font-family: 'Inter';
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.buttonContainer button:hover {
+  filter: brightness(1.1);
+}

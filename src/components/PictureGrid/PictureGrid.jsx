@@ -9,9 +9,7 @@ export default function PictureGrid({ pictures, enableAddPhoto, onAddPhoto }) {
           <img src={PlusIcon} alt="" />
         </div>
       )}
-      {pictures.map((pic) => (
-        <img key={pic._id} src={pic.imgSrc} />
-      ))}
+      {typeof pictures !== 'number' && pictures.map((pic) => <img key={pic._id} src={pic.imgSrc} />)}
     </div>
   );
 }
