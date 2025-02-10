@@ -1,7 +1,35 @@
 import classes from './NotificationRow.module.css';
+import authFetch from '../../Utils/authFetch';
+import { useRevalidator } from 'react-router-dom';
 
 export default function NotificationRow({ data }) {
   let output;
+
+  const revalidator = useRevalidator();
+
+  async function handleConfirm() {
+    const response = await authFetch('http://localhost:4000/user/acceptFollowRequest', {
+      credentials: 'include',
+      method: 'POST',
+      body: JSON.stringify({ id: data.from.id }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    revalidator.revalidate();
+  }
+
+  async function handleReject() {
+    const response = await authFetch('http://localhost:4000/user/rejectFollowRequest', {
+      credentials: 'include',
+      method: 'POST',
+      body: JSON.stringify({ id: data.from.id }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    revalidator.revalidate();
+  }
 
   switch (data.type) {
     case 'followRequest':
@@ -17,8 +45,8 @@ export default function NotificationRow({ data }) {
             </p>
           </div>
           <div className={classes.buttonContainer}>
-            <button>Confirm</button>
-            <button>Reject</button>
+            <button onClick={handleConfirm}>Confirm</button>
+            <button onClick={handleReject}>Reject</button>
           </div>
         </div>
       );

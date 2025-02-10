@@ -1,0 +1,107 @@
+.listContainer {
+  width: 400px;
+  height: 100vh;
+  background-color: rgba(56, 56, 56, 0.567);
+  border-right: solid 1px var(--border-color);
+  position: relative;
+}
+
+.listContainer h1 {
+  color: var(--foreground-color);
+  margin-left: 10px;
+  font-family: 'Montserrat';
+  font-size: 30px;
+}
+
+.convRow {
+  height: 60px;
+  display: flex;
+  margin-left: 10px;
+  margin-right: 10px;
+  padding: 5px;
+  gap: 15px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.convRow:hover {
+  background-color: rgba(128, 128, 128, 0.294);
+}
+
+.convRow img {
+  height: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 100px;
+}
+
+.convInfo {
+  height: 100%;
+}
+
+.convInfo h2 {
+  margin: 0;
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  font-size: 20px;
+  margin-top: 5px;
+}
+
+.convInfo h3 {
+  margin: 0;
+  margin-top: 5px;
+  color: var(--foreground-color);
+  font-family: 'Rubik';
+  font-weight: 400;
+  font-size: 15px;
+}
+
+.conversationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inboxContainer {
+  display: flex;
+  width: 100%;
+}
+
+.extendIcon {
+  filter: invert();
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.extendIcon img {
+  width: 18px;
+  background-color: rgb(163, 163, 163);
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  cursor: pointer;
+}
+
+.retractIcon {
+  filter: invert();
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  right: 0;
+}
+
+.retractIcon img {
+  width: 18px;
+  background-color: rgb(163, 163, 163);
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  cursor: pointer;
+  transform: rotate(180deg);
+}

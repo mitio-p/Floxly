@@ -27,7 +27,7 @@ export const settingsSideBarOptions = [
     iconType: 'static',
     icon: starIcon,
     routeType: 'static',
-    route: 'best_friends',
+    route: 'best-friends',
     place: 'start',
   },
 ];

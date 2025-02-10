@@ -12,6 +12,8 @@ export default function SearchPage() {
       if (response.ok) {
         setSearchResult(await response.json());
       }
+    } else {
+      setSearchResult([]);
     }
   }
 
@@ -28,7 +30,7 @@ export default function SearchPage() {
         />
         <div className={classes.resultsContainer}>
           {searchResult.map((result) => (
-            <SearchRow data={result} />
+            <SearchRow key={result.username} data={result} to={`/user/${result.username}`} />
           ))}
         </div>
       </div>

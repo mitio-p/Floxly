@@ -10,6 +10,7 @@
 
 .notificationContainerFollowRequest img {
   height: 90%;
+  aspect-ratio: 1 / 1;
   border-radius: 100px;
 }
 

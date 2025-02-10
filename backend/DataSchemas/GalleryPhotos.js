@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const galleryPhotosScheme = new mongoose.Schema({
+const galleryPhotosSchema = new mongoose.Schema({
   author: { type: mongoose.Types.ObjectId, required: true },
   imgSrc: { type: String, required: true },
   likersId: { type: Array, default: [] },
@@ -14,4 +14,4 @@ const galleryPhotosScheme = new mongoose.Schema({
   uploadedAt: { type: Number, default: Date.now(), immutable: true },
 });
 
-module.exports = mongoose.model('galleyPhotos', galleryPhotosScheme);
+module.exports = mongoose.model('galleyPhotos', galleryPhotosSchema);

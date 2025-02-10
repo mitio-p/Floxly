@@ -17,8 +17,13 @@ import ErrorElement from './components/ErrorElement/ErrorElement';
 import SettingsLayout from './pages/SettingsPage/SettingsLayout';
 import EditProfilePage, { action as editProfileAction } from './pages/SettingsPage/EditProfilePage';
 import AccountPrivacyPage from './pages/SettingsPage/AccountPrivacyPage';
-import NotificationPage from './pages/NotificationsPage/NotificationsPage';
+import NotificationPage, { loader as notificationLoader } from './pages/NotificationsPage/NotificationsPage';
 import SearchPage from './pages/SearchPage/SearchPage';
+import MessageLayout from './components/MessageLayout/MessageLayout';
+import Conversation, { loader as conversationLoader } from './components/MessageLayout/Conversation';
+import { io } from 'socket.io-client';
+import SocketCTX from './Context/SocketCTX';
+import BestFriendsPage, { loader as bestFriendsLoader } from './pages/SettingsPage/BestFriendsPage';
 
 const router = createBrowserRouter([
   {
@@ -37,10 +42,13 @@ const router = createBrowserRouter([
       },
       {
         path: 'messages',
+        element: <MessageLayout />,
+        children: [{ path: 'conversation/:convId', element: <Conversation />, loader: conversationLoader }],
       },
       {
         path: 'notifications',
         element: <NotificationPage />,
+        loader: notificationLoader,
       },
       {
         path: 'create',
@@ -57,6 +65,7 @@ const router = createBrowserRouter([
         children: [
           { path: 'edit', element: <EditProfilePage />, action: editProfileAction },
           { path: 'privacy', element: <AccountPrivacyPage /> },
+          { path: 'best-friends', element: <BestFriendsPage />, loader: bestFriendsLoader },
         ],
       },
     ],
@@ -75,6 +84,8 @@ const router = createBrowserRouter([
   },
 ]);
 
+const socket = io.connect('http://localhost:5000', { withCredentials: true });
+
 function App() {
   const [userData, setUserData] = useState({});
   const [notification, setNotification] = useState();
@@ -82,7 +93,9 @@ function App() {
     <UserCTX.Provider value={{ user: userData, setUser: setUserData }}>
       <NotificationCTX.Provider value={setNotification}>
         <Notification message={notification} onClose={() => setNotification('')} />
-        <RouterProvider router={router} />
+        <SocketCTX.Provider value={socket}>
+          <RouterProvider router={router} />
+        </SocketCTX.Provider>
       </NotificationCTX.Provider>
     </UserCTX.Provider>
   );

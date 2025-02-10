@@ -1,25 +1,21 @@
-.result {
+.rowContainer {
   display: flex;
+  position: relative;
   align-items: center;
-  gap: 15px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s;
-  padding: 5px;
-  border-radius: 4px;
+  width: 100%;
 }
 
-.result:hover {
+.rowContainer:hover {
   background-color: rgba(128, 128, 128, 0.368);
 }
 
-.resultUserContainer h1 {
+.rowContainer h1 {
   font-size: 20px;
   margin: 0;
   font-weight: 400;
 }
 
-.resultUserContainer h2 {
+.rowContainer h2 {
   font-size: 14px;
   margin: 0;
   font-family: 'Rubik';
@@ -27,8 +23,14 @@
   font-weight: 400;
 }
 
-.result img {
+.addToList {
+  position: absolute;
+  right: 5px;
+}
+
+.rowContainer img {
   width: 30px;
   height: 30px;
-  border-radius: 15px;
+  aspect-ratio: 1/1;
+  border-radius: 30px;
 }

@@ -58,6 +58,7 @@ export default function UserPage() {
       setFollowing(false);
       setFollowers((prev) => prev - 1);
     }
+    revalidator.revalidate();
   }
 
   async function handleCancelRequest() {
@@ -66,6 +67,20 @@ export default function UserPage() {
     });
     if (response.ok) {
       revalidator.revalidate();
+    }
+  }
+
+  async function handleCreateConversation() {
+    console.log(JSON.stringify(loaderData.user.uid));
+    const response = await authFetch('http://localhost:5000/createConversation', {
+      credentials: 'include',
+      method: 'POST',
+      body: JSON.stringify({ uid: loaderData.user.uid }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      navigate(`/messages/conversation/${(await response.json()).convId}`);
     }
   }
 
@@ -101,11 +116,16 @@ export default function UserPage() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={isFollowing ? handleUnfollow : loaderData.isRequested ? handleCancelRequest : handleFollow}
-              >
-                {isFollowing ? 'Unfollow' : loaderData.isRequested ? 'Cancel request' : 'Follow'}
-              </button>
+              <>
+                <button
+                  onClick={isFollowing ? handleUnfollow : loaderData.isRequested ? handleCancelRequest : handleFollow}
+                >
+                  {isFollowing ? 'Unfollow' : loaderData.isRequested ? 'Cancel request' : 'Follow'}
+                </button>
+                {(!loaderData.user.privateAccount || isFollowing) && (
+                  <button onClick={handleCreateConversation}>Message</button>
+                )}
+              </>
             )}
             {!isCurrentUser && (
               <div

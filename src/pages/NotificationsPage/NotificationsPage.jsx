@@ -2,23 +2,26 @@ import { useContext, useEffect, useState } from 'react';
 import NotificationRow from '../../components/NotificationRow/NotificationRow';
 import classes from './NotificationPage.module.css';
 import UserCTX from '../../Context/UserCTX';
+import authFetch from '../../Utils/authFetch';
+import { useLoaderData, useRevalidator } from 'react-router-dom';
 
 export default function NotificationPage() {
-  const userData = useContext(UserCTX);
-  const [notifications, setNotifications] = useState([]);
-  useEffect(() => {
-    if (userData?.user.notifications) {
-      setNotifications(userData.user.notifications);
-    }
-  }, [userData.user]);
+  const loaderData = useLoaderData();
   return (
     <main className={classes.globalContainer}>
       <h1>Notifications</h1>
       <div>
-        {notifications.map((notification) => (
-          <NotificationRow key={notification.date} data={notification} />
-        ))}
+        {loaderData &&
+          loaderData.map((notification) => <NotificationRow key={notification.date} data={notification} />)}
       </div>
     </main>
   );
+}
+
+export async function loader() {
+  const response = await authFetch('http://localhost:4000/notifications', { credentials: 'include' });
+
+  if (response.ok) {
+    return response;
+  }
 }

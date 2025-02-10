@@ -3,6 +3,7 @@ const app = express();
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const UsersSchema = require('./DataSchemas/Users.js');
+const ConversationsSchema = require('./DataSchemas/Conversations.js');
 const RevokedTokensSchema = require('./DataSchemas/RevokedTokens.js');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
@@ -88,24 +89,34 @@ app.post('/auth/login', async (req, res) => {
 });
 
 app.get('/auth/user', gatherUserInfo, async (req, res) => {
-  const foundUser = await UsersSchema.findOne({ email: req.user.email });
-  let updatedNotifications = [];
+  const foundUser = req.user;
+  const conversations = await ConversationsSchema.find({ participants: req.user._id.toString() }, '-messages');
+  const updatedConversations = [];
 
-  for (const notification of foundUser.notifications) {
-    if (notification.type === 'followRequest') {
-      const sender = await UsersSchema.findById(notification.from);
-      notification.from = {
-        profilePicture: sender.profilePicture,
-        username: sender.username,
-      };
-      updatedNotifications.push(notification);
-    } else {
-      updatedNotifications.push(notification);
+  for (const conversation of conversations) {
+    if (conversation.lastSentMessage || true) {
+      updatedConversations.push({
+        _id: conversation._id.toString(),
+        reciever: await UsersSchema.findById(
+          conversation.participants.filter((participant) => participant !== req.user._id.toString())[0],
+          'profilePicture username -_id'
+        ),
+        lastMessage: conversation.lastSentMessage,
+        dateCreated: conversation.dateCreated,
+      });
     }
   }
 
+  updatedConversations.sort((a, b) => {
+    const dateA = a.lastMessage?.dateSent || a.dateCreated.getTime();
+    console.log(dateA);
+    const dateB = b.lastMessage?.dateSent || b.dateCreated.getTime();
+    return dateB - dateA;
+  });
+
   if (foundUser) {
     res.status(200).json({
+      uid: foundUser._id.toString(),
       username: foundUser.username,
       fullName: foundUser.fullName,
       email: foundUser.email,
@@ -116,7 +127,8 @@ app.get('/auth/user', gatherUserInfo, async (req, res) => {
       createdAt: foundUser.createdAt,
       profilePicture: foundUser.profilePicture,
       privateAccount: foundUser.privateAccount,
-      notifications: updatedNotifications.reverse(),
+      conversations: updatedConversations,
+      bestFriends: foundUser.bestFriends,
     });
   } else {
     res.sendStatus(404);

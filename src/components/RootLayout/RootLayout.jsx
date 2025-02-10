@@ -6,13 +6,25 @@ import UserCTX from '../../Context/UserCTX.jsx';
 import tokenSevice from '../../Utils/tokenService.js';
 import authFetch from '../../Utils/authFetch.js';
 import { rootSideBarOptions } from '../../config/RootSideBarOptions.js';
+import SocketCTX from '../../Context/SocketCTX.jsx';
 
 export default function RootLayout() {
   const loaderData = useLoaderData();
   const userData = useContext(UserCTX);
   const location = useLocation();
+  const socket = useContext(SocketCTX);
   useEffect(() => {
     userData.setUser(loaderData);
+    if (socket.connected) {
+      socket.disconnect();
+      setTimeout(async () => {
+        socket.connect();
+
+        for (const conversation of loaderData.conversations) {
+          socket.emit('join_conversation', conversation._id);
+        }
+      }, 500);
+    }
   }, [loaderData, userData]);
   useEffect(() => {
     switch (location.pathname) {
@@ -21,6 +33,10 @@ export default function RootLayout() {
         break;
       case '/search':
         document.title = 'Floxly \u00B7 Search';
+        break;
+
+      case '/settings':
+        document.title = 'Floxly \u00B7 Settings';
         break;
 
       default:

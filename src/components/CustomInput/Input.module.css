@@ -4,6 +4,7 @@
   position: relative;
   border: solid 1px var(--foreground-color);
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .inputContainer textarea {

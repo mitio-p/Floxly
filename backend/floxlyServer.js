@@ -10,6 +10,7 @@ const UserSchema = require('./DataSchemas/Users');
 const PostsSchema = require('./DataSchemas/Posts');
 const TopicsSchema = require('./DataSchemas/Topics');
 const GalleryPhotosSchema = require('./DataSchemas/GalleryPhotos.js');
+const ConversationsSchema = require('./DataSchemas/Conversations.js');
 const crypto = require('crypto');
 const AWS = require('aws-sdk');
 const gatherUserInfo = require('./Middleware/gatherUserInfo.js');
@@ -44,6 +45,7 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
       profilePicture: fetchedUser.profilePicture,
       bio: fetchedUser.bio || null,
       gallery: userGallery.length,
+      privateAccount: fetchedUser.privateAccount,
     };
 
     if (fetchedUser._id.toString() === req.user._id.toString()) {
@@ -51,7 +53,7 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
       publicUserInfo.posts = await PostsSchema.find({ author: fetchedUser.username });
       publicUserInfo.topics = await TopicsSchema.find({ author: fetchedUser.username });
     } else {
-      if (!fetchedUser.privateAccount || fetchedUser.followers.includes(req.user.username)) {
+      if (!fetchedUser.privateAccount || fetchedUser.followers.includes(req.user._id.toString())) {
         publicUserInfo.gallery = userGallery;
         publicUserInfo.posts = await PostsSchema.find({ author: fetchedUser.username });
         publicUserInfo.topics = await TopicsSchema.find({ author: fetchedUser.username });
@@ -204,6 +206,17 @@ app.post('/user/updateUserInfo', upload.single('photo'), gatherUserInfo, async (
   }
 });
 
+app.get('/users/best_friends', gatherUserInfo, async (req, res) => {
+  const userBestFriendIds = req.user.bestFriends;
+  let bestFriendsList = [];
+
+  for (const bestFriendId of userBestFriendIds) {
+    bestFriendsList.push(await UserSchema.findById(bestFriendId).select('profilePicture username fullName'));
+  }
+
+  res.json(bestFriendsList);
+});
+
 app.get('/user/cancelRequest/:username', gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findOne({ username: req.params.username });
   if (fetchedUser.followRequestUsers.includes(req.user._id)) {
@@ -222,9 +235,70 @@ app.get('/user/cancelRequest/:username', gatherUserInfo, async (req, res) => {
 app.get('/users/search/:query', async (req, res) => {
   const query = req.params.query;
   const searchResult = await UserSchema.find({ username: { $regex: query, $options: 'i' } }).select(
-    'username profilePicture fullName -_id'
+    'username profilePicture fullName'
   );
   res.json(searchResult);
+});
+
+app.post('/user/acceptFollowRequest', gatherUserInfo, async (req, res) => {
+  const targetUser = await UserSchema.findById(req.body.id); // User that made the follow request
+  const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that will accept
+
+  if (targetUser) {
+    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString())) return res.sendStatus(404);
+    targetUser.following.push(req.user._id.toString());
+    fetchedUser.followers.push(req.body.id);
+    const index = fetchedUser.followRequestUsers.indexOf(req.user._id);
+    fetchedUser.followRequestUsers.splice(index, 1);
+    fetchedUser.notifications = fetchedUser.notifications.filter(
+      (notification) => notification.from !== targetUser._id.toString()
+    );
+    targetUser.save();
+    fetchedUser.save();
+
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(400);
+  }
+});
+
+app.post('/user/rejectFollowRequest', gatherUserInfo, async (req, res) => {
+  const targetUser = await UserSchema.findById(req.body.id); // User that made the follow request
+  const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that reject
+
+  if (targetUser) {
+    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString())) return res.sendStatus(404);
+    const index = fetchedUser.followRequestUsers.indexOf(req.user._id);
+    fetchedUser.followRequestUsers.splice(index, 1);
+    fetchedUser.notifications = fetchedUser.notifications.filter(
+      (notification) => notification.from !== targetUser._id.toString()
+    );
+    targetUser.save();
+    fetchedUser.save();
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(400);
+  }
+});
+
+app.get('/notifications', gatherUserInfo, async (req, res) => {
+  let updatedNotifications = [];
+
+  for (const notification of req.user.notifications) {
+    if (notification.type === 'followRequest') {
+      const sender = await UserSchema.findById(notification.from);
+      notification.from = {
+        profilePicture: sender.profilePicture,
+        username: sender.username,
+        id: sender._id.toString(),
+      };
+      updatedNotifications.push(notification);
+    } else {
+      updatedNotifications.push(notification);
+    }
+  }
+
+  res.json(updatedNotifications.reverse());
 });
 
 app.listen(4000);
