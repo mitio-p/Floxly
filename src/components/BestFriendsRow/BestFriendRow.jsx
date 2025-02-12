@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import classes from './BestFriendRow.module.css';
+import { useState } from "react";
+import classes from "./BestFriendRow.module.css";
 
 export default function BestFriendRow({ data, isBestFriends }) {
   const [bestFriends, setBestFriends] = useState(isBestFriends);
   return (
     <div className={classes.rowContainer}>
       <img src={data.profilePicture} />
-      <div>
+      <div style={{ marginLeft: "10px" }}>
         <h1>{data.username}</h1>
         <h2>{data.fullName}</h2>
       </div>

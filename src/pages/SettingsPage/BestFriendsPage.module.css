@@ -9,7 +9,7 @@
 
 .globalContainer h1 {
   margin: 0;
-  font-family: 'Rubik';
+  font-family: "Rubik";
   color: var(--foreground-color);
   margin-bottom: 20px;
 }
@@ -22,6 +22,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
 .inputContainer {
@@ -39,5 +40,5 @@
   outline: none;
   color: var(--foreground-color);
   font-size: 20px;
-  font-family: 'Roboto';
+  font-family: "Roboto";
 }
