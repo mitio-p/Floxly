@@ -7,6 +7,7 @@ import NotificationCTX from '../../Context/NotificationCTX';
 import trashIcon from '../../assets/icons/delete.png';
 import { Form, useActionData, useNavigate } from 'react-router-dom';
 import authFetch from '../../Utils/authFetch';
+import { getLocale } from '../../Utils/localization';
 
 const acceptedImageTypes = ['jpeg', 'png', 'jpg'];
 const maxFileSize = 4194304;
@@ -61,7 +62,7 @@ export default function EditProfilePage() {
   return (
     <main className={classes.globalContainer}>
       <Form method="POST" className={classes.optionsContainer} encType="multipart/form-data">
-        <h1>Edit profile</h1>
+        <h1>{getLocale('edit_profile')}</h1>
         <div className={classes.photoOptionContainer}>
           <div
             className={classes.fileInputContainer}
@@ -80,19 +81,25 @@ export default function EditProfilePage() {
               </div>
             )}
           </div>
-          <label htmlFor="profilePictureInput">Change photo</label>
+          <label htmlFor="profilePictureInput">{getLocale('change_photo')}</label>
         </div>
         <Input
-          label="Username"
+          label={getLocale('username')}
           maxCharacters={16}
           enableCounter={true}
           name="username"
           errorMessage={actionData?.errors?.username}
           ref={usernameInputRef}
         />
-        <Input label="Full name" maxCharacters={50} enableCounter={true} name="fullName" ref={fullnameInputRef} />
         <Input
-          label="Bio"
+          label={getLocale('fullname')}
+          maxCharacters={50}
+          enableCounter={true}
+          name="fullName"
+          ref={fullnameInputRef}
+        />
+        <Input
+          label={getLocale('bio')}
           maxCharacters={150}
           enableCounter={true}
           name="bio"
@@ -101,7 +108,7 @@ export default function EditProfilePage() {
           ref={bioInputRef}
         />
         <button className="btn1" style={{ position: 'absolute', right: 0, bottom: '-60px', width: 150 }}>
-          Submit
+          {getLocale('submit')}
         </button>
       </Form>
     </main>

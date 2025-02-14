@@ -1,10 +1,11 @@
 import profileIcon from '../assets/icons/profileIcon.svg';
 import lockIcon from '../assets/icons/lock.svg';
 import starIcon from '../assets/icons/star.svg';
+import { getLocale } from '../Utils/localization';
 
 export const settingsSideBarOptions = [
   {
-    label: 'Edit profile',
+    label: getLocale('edit_profile'),
     type: 'link',
     iconType: 'static',
     icon: profileIcon,
@@ -13,7 +14,7 @@ export const settingsSideBarOptions = [
     place: 'start',
   },
   {
-    label: 'Account privacy',
+    label: getLocale('account_privacy'),
     type: 'link',
     iconType: 'static',
     icon: lockIcon,
@@ -22,7 +23,7 @@ export const settingsSideBarOptions = [
     place: 'start',
   },
   {
-    label: 'Best friends',
+    label: getLocale('best_friends'),
     type: 'link',
     iconType: 'static',
     icon: starIcon,

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Input from '../../components/CustomInput/Input';
 import classes from './SearchPage.module.css';
 import SearchRow from '../../components/SearchRow/SearchRow';
+import { getLocale } from '../../Utils/localization';
 
 export default function SearchPage() {
   const [searchResult, setSearchResult] = useState([]);
@@ -19,11 +20,11 @@ export default function SearchPage() {
 
   return (
     <main className={classes.globalContainer}>
-      <h1>Search</h1>
+      <h1>{getLocale('search')}</h1>
       <div className={classes.innerContainer}>
         <input
           type="text"
-          placeholder="Search"
+          placeholder={getLocale('search')}
           onChange={(event) => {
             handleSearch(event.target.value);
           }}

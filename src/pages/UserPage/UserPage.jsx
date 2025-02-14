@@ -11,6 +11,7 @@ import PictureDialog from '../../components/Dialogs/PictureDialog.jsx';
 import tokenSevice from '../../Utils/tokenService.js';
 import authFetch from '../../Utils/authFetch.js';
 import PictureGrid from '../../components/PictureGrid/PictureGrid.jsx';
+import { getLocale } from '../../Utils/localization.js';
 
 export default function UserPage() {
   const loaderData = useLoaderData();
@@ -105,14 +106,14 @@ export default function UserPage() {
                     navigate('/settings/edit');
                   }}
                 >
-                  Edit Profile
+                  {getLocale('edit_profile')}
                 </button>{' '}
                 <button
                   onClick={() => {
                     navigate('/settings');
                   }}
                 >
-                  Settings
+                  {getLocale('settings')}
                 </button>
               </>
             ) : (
@@ -120,10 +121,14 @@ export default function UserPage() {
                 <button
                   onClick={isFollowing ? handleUnfollow : loaderData.isRequested ? handleCancelRequest : handleFollow}
                 >
-                  {isFollowing ? 'Unfollow' : loaderData.isRequested ? 'Cancel request' : 'Follow'}
+                  {isFollowing
+                    ? getLocale('unfollow')
+                    : loaderData.isRequested
+                    ? getLocale('cancel_request')
+                    : getLocale('follow')}
                 </button>
                 {(!loaderData.user.privateAccount || isFollowing) && (
-                  <button onClick={handleCreateConversation}>Message</button>
+                  <button onClick={handleCreateConversation}>{getLocale('message')}</button>
                 )}
               </>
             )}
@@ -141,10 +146,14 @@ export default function UserPage() {
           <div>
             <h3>
               {typeof loaderData.user.gallery === 'number' ? loaderData.user.gallery : loaderData.user.gallery.length}{' '}
-              Gallery
+              {getLocale('gallery')}
             </h3>
-            <h3 style={{ cursor: 'pointer' }}>{followers} Followers</h3>
-            <h3 style={{ cursor: 'pointer' }}>{loaderData.user.following.length} Following</h3>
+            <h3 style={{ cursor: 'pointer' }}>
+              {followers} {getLocale('followers')}
+            </h3>
+            <h3 style={{ cursor: 'pointer' }}>
+              {loaderData.user.following.length} {getLocale('following')}
+            </h3>
           </div>
           <div>
             <h3>{loaderData.user.fullName}</h3>
@@ -160,7 +169,7 @@ export default function UserPage() {
           <Link to="?">
             <div className={classes.buttonContainer}>
               <button>
-                <img src={GalleryIcon} alt="" /> Gallery
+                <img src={GalleryIcon} alt="" /> {getLocale('gallery')}
               </button>
               {!searchParams.get('variant') && <div className={classes.indicator}></div>}
             </div>
@@ -180,20 +189,20 @@ export default function UserPage() {
           isCurrentUser ? (
             <div className={classes.uploadPhotoSuggest}>
               <img src={CameraIcon} />
-              <h1>Upload your first photo</h1>
-              <h2>Share photos and memories with peoples around you! </h2>
+              <h1>{getLocale('upload_first_photo')}</h1>
+              <h2>{getLocale('share_photos_memories')}</h2>
               <p
                 onClick={() => {
                   setPictureDialog(true);
                 }}
               >
-                Upload your photo!
+                {getLocale('upload_photo')}
               </p>
             </div>
           ) : (
             <div className={classes.uploadPhotoSuggest}>
               <img src={CameraIcon} />
-              <h1>This account havent't got any public photos</h1>
+              <h1>{getLocale('account_no_photos')}</h1>
             </div>
           )
         ) : (
@@ -208,8 +217,8 @@ export default function UserPage() {
       ) : (
         <div className={classes.uploadPhotoSuggest}>
           <img src={CameraIcon} />
-          <h1>This account is private</h1>
-          <h2>After the user accept your follow request you'll be able to see the gallery!</h2>
+          <h1>{getLocale('account_is_private')}</h1>
+          <h2>{getLocale('private_account_description')}</h2>
         </div>
       )}
     </main>

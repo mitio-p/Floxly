@@ -4,11 +4,20 @@ import messagesIcon from '../assets/icons/message.svg';
 import notificationsIcon from '../assets/icons/notifications.svg';
 import createIcon from '../assets/icons/create.svg';
 import logoutIcon from '../assets/icons/exit.svg';
+import { getLocale } from '../Utils/localization';
 
 export const rootSideBarOptions = [
-  { label: 'Home', type: 'link', iconType: 'static', icon: houseIcon, routeType: 'static', route: '/', place: 'start' },
   {
-    label: 'Search',
+    label: getLocale('home'),
+    type: 'link',
+    iconType: 'static',
+    icon: houseIcon,
+    routeType: 'static',
+    route: '/',
+    place: 'start',
+  },
+  {
+    label: getLocale('search'),
     type: 'link',
     iconType: 'static',
     icon: searchIcon,
@@ -17,7 +26,7 @@ export const rootSideBarOptions = [
     place: 'start',
   },
   {
-    label: 'Messages',
+    label: getLocale('messages'),
     type: 'link',
     iconType: 'static',
     icon: messagesIcon,
@@ -26,7 +35,7 @@ export const rootSideBarOptions = [
     place: 'start',
   },
   {
-    label: 'Notifications',
+    label: getLocale('notifications'),
     type: 'link',
     iconType: 'static',
     icon: notificationsIcon,
@@ -35,7 +44,7 @@ export const rootSideBarOptions = [
     place: 'start',
   },
   {
-    label: 'Create',
+    label: getLocale('create'),
     type: 'link',
     iconType: 'static',
     icon: createIcon,
@@ -43,8 +52,8 @@ export const rootSideBarOptions = [
     route: '/create',
     place: 'start',
   },
-  { label: 'Profile', type: 'link', iconType: 'profileIcon', routeType: 'profileRoute', place: 'start' },
-  { label: 'Log out', type: 'button', iconType: 'static', icon: logoutIcon, onClick: logOut, place: 'end' },
+  { label: getLocale('profile'), type: 'link', iconType: 'profileIcon', routeType: 'profileRoute', place: 'start' },
+  { label: getLocale('log_out'), type: 'button', iconType: 'static', icon: logoutIcon, onClick: logOut, place: 'end' },
 ];
 
 async function logOut(navigate) {

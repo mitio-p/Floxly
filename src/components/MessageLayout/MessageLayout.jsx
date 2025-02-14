@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import SocketCTX from '../../Context/SocketCTX';
 import UserCTX from '../../Context/UserCTX';
 import nextIcon from '../../assets/icons/next.png';
+import { getLocale } from '../../Utils/localization';
 
 export default function MessageLayout() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function MessageLayout() {
               }}
             />
           </div>
-          <h1>Messages</h1>
+          <h1>{getLocale('messages')}</h1>
           <div className={classes.conversationsList}>
             {userData.user.conversations &&
               userData.user.conversations.map((conv) => {

@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import UserCTX from '../../Context/UserCTX.jsx';
 import NotificationCTX from '../../Context/NotificationCTX.jsx';
 import authFetch from '../../Utils/authFetch.js';
+import { getLocale } from '../../Utils/localization.js';
 
 export default function AccountPrivacyPage() {
   const userData = useContext(UserCTX);
@@ -38,15 +39,14 @@ export default function AccountPrivacyPage() {
   return (
     <main className={classes.globalContainer}>
       <div className={classes.opitonContainer}>
-        <h1>Account privacy</h1>
+        <h1>{getLocale('account_privacy')}</h1>
         <div className={classes.option}>
           <div>
-            <h2>Private account</h2>
+            <h2>{getLocale('private_account')}</h2>
             <h3>
-              When your account is public everyone can see your gallery and posts.
+              {getLocale('private_account_description_public')}
               <br />
-              When your account is private only your followers what you approved will be able to see your gallery and
-              posts.
+              {getLocale('private_account_description_private')}
             </h3>
           </div>
           <SwitchInput onInputChange={handleClick} value={isAccountPrivate} />

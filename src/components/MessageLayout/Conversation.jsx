@@ -1,13 +1,14 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { useLoaderData, useParams } from "react-router-dom";
-import authFetch from "../../Utils/authFetch";
-import classes from "./Conversation.module.css";
-import Input from "../CustomInput/Input";
-import rightArrowIcon from "../../assets/icons/arrowRight.svg";
-import UserCTX from "../../Context/UserCTX";
-import SocketCTX from "../../Context/SocketCTX";
-import seenIcon from "../../assets/icons/seen.png";
-import deliveringIcon from "../../assets/icons/delivering.png";
+import { useContext, useEffect, useRef, useState } from 'react';
+import { useLoaderData, useParams } from 'react-router-dom';
+import authFetch from '../../Utils/authFetch';
+import classes from './Conversation.module.css';
+import Input from '../CustomInput/Input';
+import rightArrowIcon from '../../assets/icons/arrowRight.svg';
+import UserCTX from '../../Context/UserCTX';
+import SocketCTX from '../../Context/SocketCTX';
+import seenIcon from '../../assets/icons/seen.png';
+import deliveringIcon from '../../assets/icons/delivering.png';
+import { getLocale } from '../../Utils/localization';
 
 export default function Conversation() {
   const loaderData = useLoaderData();
@@ -16,26 +17,26 @@ export default function Conversation() {
   const [isRecieverTyping, setRecieverTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
   const messageContainer = useRef();
-  const [messageInput, setMessageInput] = useState("");
+  const [messageInput, setMessageInput] = useState('');
   const [messages, setMessages] = useState(loaderData.messages);
 
   function handleTyping(event) {
     setMessageInput(event.target.value);
-    socket.emit("typing", { convId: loaderData.id });
+    socket.emit('typing', { convId: loaderData.id });
   }
 
   function handleScrollDown() {
     messageContainer.current.scrollTo({
       top: messageContainer.current.scrollHeight,
-      behavior: "instant",
+      behavior: 'instant',
     });
   }
 
   async function handleSendMessage() {
-    setMessageInput("");
+    setMessageInput('');
 
     const newMessage = {
-      type: "text",
+      type: 'text',
       author: userData.user.uid,
       text: messageInput,
       dateSent: Date.now(),
@@ -51,17 +52,14 @@ export default function Conversation() {
       return updatedMessages;
     });
 
-    socket.emit("send-message", { ...newMessage, room: loaderData.id });
+    socket.emit('send-message', { ...newMessage, room: loaderData.id });
 
-    const response = await authFetch(
-      `http://localhost:5000/send-message/${loaderData.id}`,
-      {
-        method: "POST",
-        body: JSON.stringify(newMessage),
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      }
-    );
+    const response = await authFetch(`http://localhost:5000/send-message/${loaderData.id}`, {
+      method: 'POST',
+      body: JSON.stringify(newMessage),
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
 
     if (response.ok) {
       setMessages((prev) => {
@@ -74,7 +72,7 @@ export default function Conversation() {
   }
 
   useEffect(() => {
-    socket.on("typing", (convId) => {
+    socket.on('typing', (convId) => {
       console.log(convId);
       if (convId === loaderData.id) {
         handleScrollDown();
@@ -89,7 +87,7 @@ export default function Conversation() {
       }
     });
 
-    socket.on("recieve-message", (data) => {
+    socket.on('recieve-message', (data) => {
       if (data.room === loaderData.id) {
         setMessages((prev) => {
           const updatedMessages = [...prev];
@@ -100,8 +98,8 @@ export default function Conversation() {
     });
 
     return () => {
-      socket.off("recieve-message");
-      socket.off("typing");
+      socket.off('recieve-message');
+      socket.off('typing');
       clearTimeout(typingTimeoutRef.current);
     };
   }, [socket]);
@@ -124,8 +122,8 @@ export default function Conversation() {
             key={message.dateSent}
             style={
               message.author === userData.user.uid
-                ? { display: "flex", justifyContent: "end", width: "99%" }
-                : { display: "flex", justifyContent: "start", width: "99%" }
+                ? { display: 'flex', justifyContent: 'end', width: '99%' }
+                : { display: 'flex', justifyContent: 'start', width: '99%' }
             }
           >
             <div
@@ -133,13 +131,13 @@ export default function Conversation() {
               style={
                 message.author === userData.user.uid
                   ? {
-                      backgroundColor: "var(--foreground-color)",
-                      marginBottom: message.isSeen ? "20px" : 0,
+                      backgroundColor: 'var(--foreground-color)',
+                      marginBottom: message.isSeen ? '20px' : 0,
                     }
                   : {
-                      backgroundColor: "rgb(38,38,38)",
-                      marginBottom: message.isSeen ? "20px" : 0,
-                      color: "white",
+                      backgroundColor: 'rgb(38,38,38)',
+                      marginBottom: message.isSeen ? '20px' : 0,
+                      color: 'white',
                     }
               }
             >
@@ -147,23 +145,18 @@ export default function Conversation() {
               {message.isSeen && message.author === userData.user.uid && (
                 <img className={classes.messageStatus} src={seenIcon} />
               )}
-              {!message.isDelivered && (
-                <img className={classes.messageStatus} src={deliveringIcon} />
-              )}
+              {!message.isDelivered && <img className={classes.messageStatus} src={deliveringIcon} />}
             </div>
           </div>
         ))}
-        {isRecieverTyping && (
-          <div className={classes.typingContainer}>Typing...</div>
-        )}
       </div>
+      {isRecieverTyping && (
+        <div style={{ width: '95%', display: 'flex', justifyContent: 'start', marginBottom: '10px' }}>
+          <div className={classes.typingContainer}>{getLocale('typing')}</div>
+        </div>
+      )}
       <div className={classes.inputContainer}>
-        <textarea
-          type="text"
-          placeholder="Message..."
-          onChange={handleTyping}
-          value={messageInput}
-        />
+        <textarea type="text" placeholder={getLocale('type_message')} onChange={handleTyping} value={messageInput} />
         {messageInput.length > 0 && (
           <button onClick={handleSendMessage}>
             <img src={rightArrowIcon} alt="" />
@@ -175,12 +168,12 @@ export default function Conversation() {
 }
 
 export async function loader({ params }) {
-  console.log("askhjd");
-  const response = await authFetch("http://localhost:5000/conversation", {
-    credentials: "include",
-    method: "POST",
+  console.log('askhjd');
+  const response = await authFetch('http://localhost:5000/conversation', {
+    credentials: 'include',
+    method: 'POST',
     body: JSON.stringify({ convId: params.convId }),
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (response.ok) {

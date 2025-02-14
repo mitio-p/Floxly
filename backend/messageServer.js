@@ -45,12 +45,12 @@ io.on('connection', (socket) => {
 
       if ((await ConversationsSchema.findById(data.room)).participants.includes(userId)) {
         socket.to(data.room).emit('recieve-message', { ...data, isDelivered: true });
+        console.log('askjdakshd');
       }
     }
   });
 
   socket.on('typing', ({ convId }) => {
-    console.log(convId);
     socket.to(convId).emit('typing', convId);
   });
 });

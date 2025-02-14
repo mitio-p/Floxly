@@ -35,20 +35,20 @@
 .userInfo h1 {
   margin: 0;
   color: var(--foreground-color);
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 20px;
 }
 
 .inputContainer {
   border: solid 1px var(--border-color);
+  border-radius: 20px;
   width: 95%;
   height: 40px;
-  display: flex;
   bottom: 50px;
-  border-radius: 20px;
-  align-items: center;
   padding-left: 10px;
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
 }
 
 .inputContainer textarea {
@@ -59,7 +59,7 @@
   resize: none;
   color: white;
   height: 50%;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 15px;
 }
 
@@ -102,7 +102,7 @@
   padding-top: 4px;
   padding-bottom: 20px;
   border-radius: 5px;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 18px;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -130,7 +130,7 @@
   padding-left: 10px;
   padding-right: 10px;
   border-radius: 20px;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-style: italic;
   margin-top: 10px;
 }
