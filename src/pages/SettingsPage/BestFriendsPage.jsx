@@ -38,11 +38,13 @@ export default function BestFriendsPage() {
           <div>
             {searchResult.length > 0
               ? searchResult.map((result) => (
-                  <BestFriendRow data={result} isBestFriends={userData.user.bestFriends.includes(result._id)} />
+                  <BestFriendRow
+                    key={result._id}
+                    data={result}
+                    isBestFriends={loaderData.some((user) => user.id === result._id)}
+                  />
                 ))
-              : loaderData.map((friend) => (
-                  <BestFriendRow data={friend} isBestFriends={userData.user.bestFriends.includes(friend._id)} />
-                ))}
+              : loaderData.map((friend) => <BestFriendRow key={friend._id} data={friend} isBestFriends={true} />)}
           </div>
         </div>
       </div>
