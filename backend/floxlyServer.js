@@ -50,7 +50,7 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
       following: fetchedUser.following,
       profilePicture: fetchedUser.profilePicture,
       bio: fetchedUser.bio || null,
-      gallery: userGallery.length,
+      photosCount: userGallery.length,
       privateAccount: fetchedUser.privateAccount,
     };
 
@@ -345,6 +345,17 @@ app.post('/user/removeBestFriend', gatherUserInfo, async (req, res) => {
   console.log(user.bestFriends);
   await user.save();
   res.sendStatus(200);
+});
+
+app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+  const author = await UserSchema.findById(photo.author);
+
+  if (author.privateAccount && !author.followers.includes(req.user._id)) return res.sendStatus(403);
+
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+
+  res.json(photo);
 });
 
 app.listen(4000);

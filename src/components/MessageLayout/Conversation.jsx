@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useLoaderData, useParams } from 'react-router-dom';
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import authFetch from '../../Utils/authFetch';
 import classes from './Conversation.module.css';
 import Input from '../CustomInput/Input';
@@ -9,6 +9,7 @@ import SocketCTX from '../../Context/SocketCTX';
 import seenIcon from '../../assets/icons/seen.png';
 import deliveringIcon from '../../assets/icons/delivering.png';
 import { getLocale } from '../../Utils/localization';
+import getTimeFromMs from '../../Utils/getTimeFromMs';
 
 export default function Conversation() {
   const loaderData = useLoaderData();
@@ -19,6 +20,7 @@ export default function Conversation() {
   const messageContainer = useRef();
   const [messageInput, setMessageInput] = useState('');
   const [messages, setMessages] = useState(loaderData.messages);
+  const navigate = useNavigate();
 
   function handleTyping(event) {
     setMessageInput(event.target.value);
@@ -113,7 +115,13 @@ export default function Conversation() {
       <header>
         <div className={classes.userInfo}>
           <img src={loaderData.reciever.profilePicture} alt="" />
-          <h1>{loaderData.reciever.username}</h1>
+          <h1
+            onClick={() => {
+              navigate(`/user/${loaderData.reciever.username}`);
+            }}
+          >
+            {loaderData.reciever.username}
+          </h1>
         </div>
       </header>
       <div className={classes.messagesContainer} ref={messageContainer}>
@@ -145,7 +153,7 @@ export default function Conversation() {
               {message.isSeen && message.author === userData.user.uid && (
                 <img className={classes.messageStatus} src={seenIcon} />
               )}
-              {!message.isDelivered && <img className={classes.messageStatus} src={deliveringIcon} />}
+              <div className={classes.messageTime}>{getTimeFromMs(message.dateSent)}</div>
             </div>
           </div>
         ))}

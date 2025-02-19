@@ -37,6 +37,7 @@
   color: var(--foreground-color);
   font-family: 'Roboto';
   font-size: 20px;
+  cursor: pointer;
 }
 
 .inputContainer {
@@ -95,12 +96,11 @@
 .message {
   min-height: 30px;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  align-items: end;
   padding-left: 10px;
   padding-right: 10px;
   padding-top: 4px;
-  padding-bottom: 20px;
   border-radius: 5px;
   font-family: 'Roboto';
   font-size: 18px;
@@ -133,4 +133,10 @@
   font-family: 'Roboto';
   font-style: italic;
   margin-top: 10px;
+}
+
+.messageTime {
+  font-size: 15px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }

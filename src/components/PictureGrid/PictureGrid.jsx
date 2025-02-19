@@ -1,7 +1,7 @@
 import classes from './PictureGrid.module.css';
 import PlusIcon from '../../assets/icons/plus.svg';
 
-export default function PictureGrid({ pictures, enableAddPhoto, onAddPhoto }) {
+export default function PictureGrid({ pictures, enableAddPhoto, onAddPhoto, onSelectPhoto }) {
   return (
     <div className={classes.gridContainer} style={pictures.length > 2 ? { justifyContent: 'start' } : undefined}>
       {enableAddPhoto && (
@@ -9,7 +9,16 @@ export default function PictureGrid({ pictures, enableAddPhoto, onAddPhoto }) {
           <img src={PlusIcon} alt="" />
         </div>
       )}
-      {typeof pictures !== 'number' && pictures.map((pic) => <img key={pic._id} src={pic.imgSrc} />)}
+      {typeof pictures !== 'number' &&
+        pictures.map((pic) => (
+          <img
+            key={pic._id}
+            src={pic.imgSrc}
+            onClick={() => {
+              onSelectPhoto(pic._id);
+            }}
+          />
+        ))}
     </div>
   );
 }
