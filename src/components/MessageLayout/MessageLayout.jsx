@@ -53,9 +53,10 @@ export default function MessageLayout() {
                     <div className={classes.convInfo}>
                       <h2>{conv.reciever.username}</h2>
                       <h3>
-                        {conv.lastMessage?.text.length < 25
-                          ? conv.lastMessage?.text
-                          : conv.lastMessage?.text.substr(0, 25) + '...'}
+                        {conv.lastMessage &&
+                          (conv.lastMessage?.text.length < 25
+                            ? conv.lastMessage?.text
+                            : conv.lastMessage?.text.substr(0, 25) + '...')}
                       </h3>
                     </div>
                   </div>

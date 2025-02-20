@@ -13,6 +13,7 @@ import authFetch from '../../Utils/authFetch.js';
 import PictureGrid from '../../components/PictureGrid/PictureGrid.jsx';
 import { getLocale } from '../../Utils/localization.js';
 import PhotoViewer from '../../components/PhotoViewer/PhotoViewer.jsx';
+import SocketCTX from '../../Context/SocketCTX.jsx';
 
 export default function UserPage() {
   const loaderData = useLoaderData();
@@ -23,6 +24,8 @@ export default function UserPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [followers, setFollowers] = useState(loaderData.user.followers.length);
   const [pictureDialog, setPictureDialog] = useState(false);
+
+  const socket = useContext(SocketCTX);
 
   const [optionDialog, setOptionDialog] = useState({
     options: [
@@ -76,7 +79,6 @@ export default function UserPage() {
   }
 
   async function handleCreateConversation() {
-    console.log(JSON.stringify(loaderData.user.uid));
     const response = await authFetch('http://localhost:5000/createConversation', {
       credentials: 'include',
       method: 'POST',
@@ -85,7 +87,9 @@ export default function UserPage() {
     });
 
     if (response.ok) {
-      navigate(`/messages/conversation/${(await response.json()).convId}`);
+      const convId = (await response.json()).convId;
+      socket.emit('join_conversation', convId);
+      navigate(`/messages/conversation/${convId}`);
     }
   }
 
@@ -189,7 +193,9 @@ export default function UserPage() {
             >
               <img src={GalleryIcon} alt="" /> {getLocale('gallery')}
             </button>
-            {!searchParams.get('variant') && <div className={classes.indicator}></div>}
+            {(!searchParams.get('variant') || searchParams.get('variant') === 'gallery') && (
+              <div className={classes.indicator}></div>
+            )}
           </div>
           <div className={classes.buttonContainer}>
             <button
@@ -237,7 +243,7 @@ export default function UserPage() {
           <h1>{getLocale('account_is_private')}</h1>
           <h2>{getLocale('private_account_description')}</h2>
         </div>
-      ) : loaderData.photosCount < 1 ? (
+      ) : loaderData.user.photosCount < 1 ? (
         <div className={classes.uploadPhotoSuggest}>
           <img src={CameraIcon} />
           <h1>{getLocale('account_no_photos')}</h1>

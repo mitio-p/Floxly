@@ -31,6 +31,7 @@ io.on('connection', (socket) => {
       ).uid;
 
       if ((await ConversationsSchema.findById(data)).participants.includes(userId)) {
+        console.log('joined');
         socket.join(data);
       }
     }
