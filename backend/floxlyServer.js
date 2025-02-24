@@ -35,6 +35,9 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findOne({
     username: req.params.username,
   });
+  console.log(fetchedUser);
+  if (!fetchedUser) return res.sendStatus(404);
+
   const userGallery = await GalleryPhotosSchema.find({
     author: fetchedUser._id,
   });

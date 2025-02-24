@@ -43,15 +43,6 @@ export const rootSideBarOptions = [
     route: '/notifications',
     place: 'start',
   },
-  {
-    label: getLocale('create'),
-    type: 'link',
-    iconType: 'static',
-    icon: createIcon,
-    routeType: 'static',
-    route: '/create',
-    place: 'start',
-  },
   { label: getLocale('profile'), type: 'link', iconType: 'profileIcon', routeType: 'profileRoute', place: 'start' },
   { label: getLocale('log_out'), type: 'button', iconType: 'static', icon: logoutIcon, onClick: logOut, place: 'end' },
 ];

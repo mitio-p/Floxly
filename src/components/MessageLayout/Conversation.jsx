@@ -140,11 +140,9 @@ export default function Conversation() {
                 message.author === userData.user.uid
                   ? {
                       backgroundColor: 'var(--foreground-color)',
-                      marginBottom: message.isSeen ? '20px' : 0,
                     }
                   : {
                       backgroundColor: 'rgb(38,38,38)',
-                      marginBottom: message.isSeen ? '20px' : 0,
                       color: 'white',
                     }
               }
@@ -153,7 +151,14 @@ export default function Conversation() {
               {message.isSeen && message.author === userData.user.uid && (
                 <img className={classes.messageStatus} src={seenIcon} />
               )}
-              <div className={classes.messageTime}>{getTimeFromMs(message.dateSent)}</div>
+              <div className={classes.messageDetails}>
+                {!message.isDelivered && (
+                  <div>
+                    <img src={deliveringIcon} />
+                  </div>
+                )}
+                {getTimeFromMs(message.dateSent)}
+              </div>
             </div>
           </div>
         ))}

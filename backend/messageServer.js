@@ -46,7 +46,6 @@ io.on('connection', (socket) => {
 
       if ((await ConversationsSchema.findById(data.room)).participants.includes(userId)) {
         socket.to(data.room).emit('recieve-message', { ...data, isDelivered: true });
-        console.log('askjdakshd');
       }
     }
   });

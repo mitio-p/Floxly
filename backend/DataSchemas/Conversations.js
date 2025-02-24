@@ -5,6 +5,7 @@ const conversationSchema = new mongoose.Schema({
   lastSentMessage: Object,
   messages: Array,
   dateCreated: { type: Date, default: Date.now(), immutable: true },
+  seenInfo: Object,
 });
 
 module.exports = mongoose.model('conversations', conversationSchema);

@@ -135,8 +135,14 @@
   margin-top: 10px;
 }
 
-.messageTime {
+.messageDetails {
   font-size: 15px;
   padding-top: 2px;
   padding-bottom: 2px;
+  display: flex;
+  gap: 5px;
+}
+
+.messageDetails img {
+  width: 12px;
 }
