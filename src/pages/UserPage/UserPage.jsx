@@ -109,7 +109,7 @@ export default function UserPage() {
           setPictureDialog(false);
         }}
       />
-      {searchParams.get('p') && <PhotoViewer user={loaderData} />}
+      {searchParams.get('p') && <PhotoViewer user={loaderData.user} picId={searchParams.get('p')} />}
       <div className={classes.userInfo}>
         <img src={loaderData.user.profilePicture} />
         <div className={classes.userStats}>

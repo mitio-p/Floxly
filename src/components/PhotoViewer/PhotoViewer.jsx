@@ -1,16 +1,21 @@
 import { useSearchParams } from 'react-router-dom';
 import classes from './PhotoViewer.module.css';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import authFetch from '../../Utils/authFetch';
 
-export default function PhotoViewer({ user }) {
-  const [searchParams] = useSearchParams();
+import emptyHeartIcon from '../../assets/icons/heart-empty.svg';
+import fullHeartIcon from '../../assets/icons/heart-full.svg';
+import UserCTX from '../../Context/UserCTX';
+
+export default function PhotoViewer({ user, picId }) {
   const [photo, setPhoto] = useState();
   const [error, setError] = useState(false);
-  console.log(photo);
+  const userData = useContext(UserCTX);
+
+  const [likersId, setLikersId] = useState([]);
 
   async function handleFetchPhoto() {
-    const response = await authFetch(`http://localhost:4000/photo/${searchParams.get('p')}`, {
+    const response = await authFetch(`http://localhost:4000/photo/${picId}`, {
       credentials: 'include',
     });
 
@@ -25,5 +30,32 @@ export default function PhotoViewer({ user }) {
     handleFetchPhoto();
   }, []);
 
-  return <div className={classes.viewerContainer}></div>;
+  useEffect(() => {
+    setLikersId(photo?.likersId);
+  }, [photo]);
+
+  return (
+    <div className={classes.viewerContainer}>
+      <div className={classes.photoContent}>
+        <div className={classes.imageContainer}>
+          <img src={photo?.imgSrc} alt="" />
+        </div>
+        <div className={classes.infoContainer}>
+          <div className={classes.userInfo}>
+            <img src={user.profilePicture} alt="" />
+            <div>
+              <h2>{user.username}</h2>
+              {photo?.location && <h3>{photo?.location}</h3>}
+            </div>
+          </div>
+          <div className={classes.commentSection}></div>
+          <div className={classes.pictureReactions}>
+            <div className={classes.reactStat}>
+              <img alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

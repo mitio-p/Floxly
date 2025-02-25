@@ -8,6 +8,78 @@
   animation-name: fadeIn;
   animation-duration: 0.5s;
   animation-fill-mode: forwards;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.photoContent {
+  width: 75%;
+  height: 80%;
+  display: flex;
+}
+
+.infoContainer {
+  width: 50%;
+  background-color: var(--dialog-background-color);
+  display: flex;
+}
+
+.imageContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.imageContainer {
+  background-color: black;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.userInfo {
+  width: 100%;
+  height: 45px;
+  border-bottom: solid 1px var(--foreground-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userInfo img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50px;
+  margin-left: 10px;
+}
+
+.userInfo h2 {
+  color: var(--foreground-color);
+  font-family: 'Montserrat';
+  font-weight: 500;
+  font-size: 15px;
+  margin: 0;
+}
+
+.userInfo h3 {
+  color: var(--foreground-color);
+  font-family: 'Inter';
+  font-weight: 500;
+  font-size: 12px;
+  margin: 0;
+}
+
+.pictureReactions {
+  min-height: 40px;
+}
+
+.commentSection {
+  flex: 1;
+  background-color: rgb(32, 32, 32);
 }
 
 @keyframes fadeIn {
