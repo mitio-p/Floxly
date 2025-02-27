@@ -75,11 +75,76 @@
 
 .pictureReactions {
   min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  padding-right: 10px;
+  gap: 12px;
 }
 
 .commentSection {
   flex: 1;
   background-color: rgb(32, 32, 32);
+}
+
+.reactStat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.reactStat img {
+  width: 22px;
+}
+
+.reactStat p {
+  margin: 0;
+  font-family: 'Roboto';
+  color: white;
+  font-weight: 600;
+}
+
+.inputContainer {
+  border-bottom: solid 1px var(--foreground-color);
+  display: flex;
+  align-items: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  position: relative;
+}
+
+.inputContainer img {
+  height: 21px;
+  aspect-ratio: 1/1;
+  cursor: pointer;
+}
+
+.inputContainer textarea {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--foreground-color);
+  font-size: 15px;
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  resize: none;
+  height: 21px;
+  width: 98%;
+}
+
+.emojiMenu {
+  position: absolute;
+  bottom: 35px;
+  right: 0;
+}
+
+.emojiMenuBackground {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
 }
 
 @keyframes fadeIn {

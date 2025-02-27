@@ -5,7 +5,13 @@ import authFetch from '../../Utils/authFetch';
 
 import emptyHeartIcon from '../../assets/icons/heart-empty.svg';
 import fullHeartIcon from '../../assets/icons/heart-full.svg';
+import comment from '../../assets/icons/comment.svg';
 import UserCTX from '../../Context/UserCTX';
+import EmojiIcon from '../../assets/icons/emoji.svg';
+
+import EmojiPickerReact from 'emoji-picker-react';
+
+import Input from '../CustomInput/Input';
 
 export default function PhotoViewer({ user, picId }) {
   const [photo, setPhoto] = useState();
@@ -13,6 +19,13 @@ export default function PhotoViewer({ user, picId }) {
   const userData = useContext(UserCTX);
 
   const [likersId, setLikersId] = useState([]);
+  const [comments, setComments] = useState([]);
+
+  const [isEmojiMenuShown, setEmojiMenuShow] = useState(false);
+
+  const isLiked = likersId && likersId.includes(userData.user.uid);
+
+  const [commentInput, setCommentInput] = useState('');
 
   async function handleFetchPhoto() {
     const response = await authFetch(`http://localhost:4000/photo/${picId}`, {
@@ -26,16 +39,33 @@ export default function PhotoViewer({ user, picId }) {
     }
   }
 
+  function handleTypeCommentInput(event) {
+    setCommentInput(event.target.value);
+  }
+
+  function handlePickEmoji(emojiData) {
+    setCommentInput((prev) => prev + emojiData.emoji);
+  }
+
   useEffect(() => {
     handleFetchPhoto();
   }, []);
 
   useEffect(() => {
     setLikersId(photo?.likersId);
+    setComments(photo?.comments);
   }, [photo]);
 
   return (
     <div className={classes.viewerContainer}>
+      {isEmojiMenuShown && (
+        <div
+          className={classes.emojiMenuBackground}
+          onClick={() => {
+            setEmojiMenuShow(false);
+          }}
+        ></div>
+      )}
       <div className={classes.photoContent}>
         <div className={classes.imageContainer}>
           <img src={photo?.imgSrc} alt="" />
@@ -51,8 +81,28 @@ export default function PhotoViewer({ user, picId }) {
           <div className={classes.commentSection}></div>
           <div className={classes.pictureReactions}>
             <div className={classes.reactStat}>
-              <img alt="" />
+              <img src={isLiked ? fullHeartIcon : emptyHeartIcon} alt="" />
+              <p>{likersId && likersId.length}</p>
             </div>
+            <div className={classes.reactStat}>
+              <img src={comment} alt="" />
+              <p>{comments && comments.length}</p>
+            </div>
+          </div>
+          <div className={classes.inputContainer}>
+            <textarea type="text" placeholder="Add comment..." value={commentInput} onChange={handleTypeCommentInput} />
+            <img
+              src={EmojiIcon}
+              alt=""
+              onClick={() => {
+                setEmojiMenuShow((prev) => !prev);
+              }}
+            />
+            {isEmojiMenuShown && (
+              <div className={classes.emojiMenu}>
+                <EmojiPickerReact theme="dark" onEmojiClick={handlePickEmoji} />
+              </div>
+            )}
           </div>
         </div>
       </div>
