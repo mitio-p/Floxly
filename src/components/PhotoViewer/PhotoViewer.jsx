@@ -50,6 +50,20 @@ export default function PhotoViewer({ user, picId }) {
     setCommentInput((prev) => prev + emojiData.emoji);
   }
 
+  async function handleLike() {
+    const response = await authFetch(`http://localhost:4000/photo/like/${searchParams.get('p')}`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      setLikersId((prev) => {
+        prev.push(userData.user.uid);
+        return prev;
+      });
+    }
+  }
+
   function handleClose() {
     setSearchParams((prev) => prev.delete('p'));
   }
@@ -62,6 +76,8 @@ export default function PhotoViewer({ user, picId }) {
     setLikersId(photo?.likersId);
     setComments(photo?.comments);
   }, [photo]);
+
+  console.log(isLiked);
 
   return (
     <div className={classes.viewerContainer}>
@@ -91,7 +107,7 @@ export default function PhotoViewer({ user, picId }) {
           <div className={classes.commentSection}></div>
           <div className={classes.pictureReactions}>
             <div className={classes.reactStat}>
-              <img src={isLiked ? fullHeartIcon : emptyHeartIcon} alt="" />
+              <img src={isLiked ? fullHeartIcon : emptyHeartIcon} alt="" onClick={handleLike} />
               <p>{likersId && likersId.length}</p>
             </div>
             <div className={classes.reactStat}>

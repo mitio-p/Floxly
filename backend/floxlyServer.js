@@ -370,4 +370,23 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
   }
 });
 
+app.post('/photo/like/:photoId', gatherUserInfo, async (req, res) => {
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+  const author = await UserSchema.findById(photo.author);
+
+  if (
+    author.privateAccount &&
+    !author.followers.includes(req.user._id) &&
+    author._id.toString() !== req.user._id.toString()
+  )
+    return res.sendStatus(403);
+
+  if (photo.likersId.includes(author._id.toString())) return res.sendStatus(403);
+
+  if (photo.isDeactivated) return res.sendStatus(403);
+
+  photo.likersId.push(req.user._id.toString());
+  res.sendStatus(200);
+});
+
 app.listen(4000);

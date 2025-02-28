@@ -12,6 +12,7 @@ const galleryPhotosSchema = new mongoose.Schema({
   isLikesCountHidden: { type: Boolean, required: true },
   isCommentsOff: { type: Boolean, required: true },
   uploadedAt: { type: Number, default: Date.now(), immutable: true },
+  isDeactivated: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('galleyPhotos', galleryPhotosSchema);
