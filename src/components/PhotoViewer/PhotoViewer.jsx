@@ -12,11 +12,14 @@ import EmojiIcon from '../../assets/icons/emoji.svg';
 import EmojiPickerReact from 'emoji-picker-react';
 
 import Input from '../CustomInput/Input';
+import rightArrowIcon from '../../assets/icons/arrowRight.svg';
+import closeIcon from '../../assets/icons/close.svg';
 
 export default function PhotoViewer({ user, picId }) {
   const [photo, setPhoto] = useState();
   const [error, setError] = useState(false);
   const userData = useContext(UserCTX);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [likersId, setLikersId] = useState([]);
   const [comments, setComments] = useState([]);
@@ -47,6 +50,10 @@ export default function PhotoViewer({ user, picId }) {
     setCommentInput((prev) => prev + emojiData.emoji);
   }
 
+  function handleClose() {
+    setSearchParams((prev) => prev.delete('p'));
+  }
+
   useEffect(() => {
     handleFetchPhoto();
   }, []);
@@ -58,6 +65,9 @@ export default function PhotoViewer({ user, picId }) {
 
   return (
     <div className={classes.viewerContainer}>
+      <div className={classes.close}>
+        <img onClick={handleClose} src={closeIcon} alt="" />
+      </div>
       {isEmojiMenuShown && (
         <div
           className={classes.emojiMenuBackground}
@@ -102,6 +112,11 @@ export default function PhotoViewer({ user, picId }) {
               <div className={classes.emojiMenu}>
                 <EmojiPickerReact theme="dark" onEmojiClick={handlePickEmoji} />
               </div>
+            )}
+            {commentInput.length > 0 && (
+              <button className={classes.sendButton} onClick={undefined}>
+                <img src={rightArrowIcon} alt="" />
+              </button>
             )}
           </div>
         </div>
