@@ -13,7 +13,7 @@
 
 .logoContainer p {
   color: var(--foreground-color);
-  font-family: "Montserrat";
+  font-family: 'Montserrat';
   font-weight: bold;
   cursor: pointer;
   text-decoration: none;
@@ -60,7 +60,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Rubik";
+  font-family: 'Rubik';
 }
 
 .passiveLink img {
@@ -95,7 +95,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Rubik";
+  font-family: 'Rubik';
 }
 
 .activeLink img {
@@ -122,6 +122,7 @@
 
 .picture {
   border-radius: 20px;
+  aspect-ratio: 1/1;
 }
 
 .endItems {
@@ -143,7 +144,7 @@
   color: #c14343;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Rubik";
+  font-family: 'Rubik';
   transition: all 0.15s;
   border-radius: 5px;
   display: flex;
@@ -163,7 +164,7 @@
 .titleContainer {
   margin-top: 30px;
   color: var(--foreground-color);
-  font-family: "Roboto";
+  font-family: 'Roboto';
   text-decoration: none;
   font-size: 25px;
   transition: all 0.15s;

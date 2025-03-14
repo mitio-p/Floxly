@@ -20,7 +20,7 @@
 }
 
 .infoContainer {
-  width: 50%;
+  width: 40%;
   background-color: var(--dialog-background-color);
   display: flex;
 }
@@ -85,6 +85,11 @@
 .commentSection {
   flex: 1;
   background-color: rgb(32, 32, 32);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-y: auto;
 }
 
 .reactStat {
@@ -185,6 +190,30 @@
 .close img {
   width: 20px;
   height: 20px;
+}
+
+.noCommentContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+  gap: 5px;
+}
+
+.noCommentContainer h1 {
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  margin: 0;
+  font-size: 30px;
+}
+
+.noCommentContainer h2 {
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  margin: 0;
+  font-size: 20px;
 }
 
 @keyframes fadeIn {

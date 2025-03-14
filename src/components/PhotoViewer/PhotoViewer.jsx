@@ -14,6 +14,7 @@ import EmojiPickerReact from 'emoji-picker-react';
 import Input from '../CustomInput/Input';
 import rightArrowIcon from '../../assets/icons/arrowRight.svg';
 import closeIcon from '../../assets/icons/close.svg';
+import Comment from '../Comment/Comment';
 
 export default function PhotoViewer({ user, picId }) {
   const [photo, setPhoto] = useState();
@@ -29,6 +30,8 @@ export default function PhotoViewer({ user, picId }) {
   const isLiked = likersId && likersId.includes(userData.user.uid);
 
   const [commentInput, setCommentInput] = useState('');
+
+  console.log(comments);
 
   async function handleFetchPhoto() {
     const response = await authFetch(`http://localhost:4000/photo/${picId}`, {
@@ -58,8 +61,25 @@ export default function PhotoViewer({ user, picId }) {
 
     if (response.ok) {
       setLikersId((prev) => {
-        prev.push(userData.user.uid);
-        return prev;
+        const updatedLikers = [...prev];
+        updatedLikers.push(userData.user.uid);
+        return updatedLikers;
+      });
+    }
+  }
+
+  async function handleDislike() {
+    const response = await authFetch(`http://localhost:4000/photo/dislike/${searchParams.get('p')}`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      setLikersId((prev) => {
+        const updatedLikers = [...prev];
+        const userIndex = updatedLikers.indexOf(userData.user.uid);
+        updatedLikers.splice(userIndex, 1);
+        return updatedLikers;
       });
     }
   }
@@ -68,16 +88,33 @@ export default function PhotoViewer({ user, picId }) {
     setSearchParams((prev) => prev.delete('p'));
   }
 
+  async function handleComment() {
+    const response = await authFetch(`http://localhost:4000/photo/${picId}/comment`, {
+      method: 'POST',
+      credentials: 'include',
+      body: JSON.stringify({ text: commentInput }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      setCommentInput('');
+      const data = await response.json();
+      setComments((prev) => {
+        const updatedComments = [...prev];
+        updatedComments.unshift(data);
+        return updatedComments;
+      });
+    }
+  }
+
   useEffect(() => {
     handleFetchPhoto();
   }, []);
 
   useEffect(() => {
-    setLikersId(photo?.likersId);
-    setComments(photo?.comments);
+    setLikersId(photo?.likersId || []);
+    setComments(photo?.comments || []);
   }, [photo]);
-
-  console.log(isLiked);
 
   return (
     <div className={classes.viewerContainer}>
@@ -104,10 +141,23 @@ export default function PhotoViewer({ user, picId }) {
               {photo?.location && <h3>{photo?.location}</h3>}
             </div>
           </div>
-          <div className={classes.commentSection}></div>
+          <div className={classes.commentSection}>
+            {comments.length < 1 ? (
+              <div className={classes.noCommentContainer}>
+                <h1>No comments yet!</h1>
+                <h2>Be the first who will write a comment!</h2>
+              </div>
+            ) : (
+              comments.map((commentData) => <Comment key={commentData.dateSent} data={commentData} picId={picId} />)
+            )}
+          </div>
           <div className={classes.pictureReactions}>
             <div className={classes.reactStat}>
-              <img src={isLiked ? fullHeartIcon : emptyHeartIcon} alt="" onClick={handleLike} />
+              <img
+                src={isLiked ? fullHeartIcon : emptyHeartIcon}
+                alt=""
+                onClick={!isLiked ? handleLike : handleDislike}
+              />
               <p>{likersId && likersId.length}</p>
             </div>
             <div className={classes.reactStat}>
@@ -130,7 +180,7 @@ export default function PhotoViewer({ user, picId }) {
               </div>
             )}
             {commentInput.length > 0 && (
-              <button className={classes.sendButton} onClick={undefined}>
+              <button className={classes.sendButton} onClick={handleComment}>
                 <img src={rightArrowIcon} alt="" />
               </button>
             )}

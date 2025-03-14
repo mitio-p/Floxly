@@ -19,7 +19,8 @@
   color: var(--foreground-color);
   font-family: 'Rubik';
   text-align: start;
-  padding-left: 20px;
+  padding-left: 15px;
+  padding-right: 10px;
 }
 
 .buttonContainer {

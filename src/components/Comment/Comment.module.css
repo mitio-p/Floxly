@@ -1,0 +1,57 @@
+.commentContainer {
+  width: 90%;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.commentDetails {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.commentDetails .username {
+  margin: 0;
+  color: var(--foreground-color);
+  margin-top: 5px;
+  font-family: 'Montserrat';
+  padding-right: 5px;
+}
+
+.commentDetails .commentText {
+  margin: 0;
+  margin-top: 5px;
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.profilePicture {
+  width: 40px;
+  aspect-ratio: 1/1;
+  border-radius: 50px;
+}
+
+.like {
+  width: 15px;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.likesCount {
+  width: 100%;
+  margin: 0;
+  color: rgb(131, 131, 131);
+  text-align: center;
+  margin-top: 2px;
+  font-family: 'Roboto';
+  font-size: 14px;
+}

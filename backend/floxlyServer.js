@@ -14,6 +14,7 @@ const ConversationsSchema = require('./DataSchemas/Conversations.js');
 const crypto = require('crypto');
 const AWS = require('aws-sdk');
 const gatherUserInfo = require('./Middleware/gatherUserInfo.js');
+const GalleryPhotos = require('./DataSchemas/GalleryPhotos.js');
 require('dotenv').config();
 const upload = multer({ storage });
 
@@ -364,6 +365,16 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
 
     if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
 
+    const updatedComments = [];
+
+    for (let comment of photo.comments) {
+      const author = await UserSchema.findById(comment.author).select('profilePicture username');
+      comment.author = author;
+      updatedComments.push(comment);
+    }
+
+    photo.comments = updatedComments;
+
     res.json(photo);
   } catch {
     res.sendStatus(400);
@@ -381,11 +392,137 @@ app.post('/photo/like/:photoId', gatherUserInfo, async (req, res) => {
   )
     return res.sendStatus(403);
 
-  if (photo.likersId.includes(author._id.toString())) return res.sendStatus(403);
-
   if (photo.isDeactivated) return res.sendStatus(403);
 
   photo.likersId.push(req.user._id.toString());
+  photo.save();
+  res.sendStatus(200);
+});
+
+app.post('/photo/dislike/:photoId', gatherUserInfo, async (req, res) => {
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+  const author = await UserSchema.findById(photo.author);
+
+  if (
+    author.privateAccount &&
+    !author.followers.includes(req.user._id) &&
+    author._id.toString() !== req.user._id.toString()
+  )
+    return res.sendStatus(403);
+
+  if (photo.isDeactivated) return res.sendStatus(403);
+
+  const userIndex = photo.likersId.indexOf(req.user._id.toString());
+  photo.likersId.splice(userIndex, 1);
+  photo.save();
+  res.sendStatus(200);
+});
+
+app.post('/photo/:photoId/comment', gatherUserInfo, async (req, res) => {
+  if (!req.body.text) return res.sendStatus(400);
+
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+  const author = await UserSchema.findById(photo.author);
+
+  if (
+    author.privateAccount &&
+    !author.followers.includes(req.user._id) &&
+    req.user._id.toString() !== author._id.toString()
+  )
+    return res.sendStatus(403);
+
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+
+  if (!photo) return res.sendStatus(404);
+
+  let commentId = 1;
+
+  if (photo.comments.length > 0) {
+    const commentIDs = photo.comments.map((comment) => comment.id);
+    commentId = Math.max(...commentIDs) + 1;
+  }
+
+  const comment = {
+    id: commentId,
+    dateSent: Date.now(),
+    likers: [],
+    replies: [],
+    text: req.body.text,
+    isEdited: false,
+    author: req.user._id.toString(),
+  };
+
+  photo.comments.push(comment);
+
+  await photo.save();
+
+  res.json({ ...comment, author: { profilePicture: req.user.profilePicture, username: req.user.username } });
+});
+
+app.post('/photo/:photoId/comment/like', gatherUserInfo, async (req, res) => {
+  if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
+
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+  if (!photo) return res.sendStatus(404);
+
+  const author = await UserSchema.findById(photo.author);
+  if (
+    author.privateAccount &&
+    !author.followers.includes(req.user._id) &&
+    req.user._id.toString() !== author._id.toString()
+  )
+    return res.sendStatus(403);
+
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+
+  let commentIndex = photo.comments.findIndex((comment) => comment.id === req.body.id);
+  if (commentIndex === -1) return res.sendStatus(404);
+
+  if (photo.comments[commentIndex].likers.includes(req.user._id.toString())) {
+    return res.sendStatus(400);
+  }
+
+  photo.comments[commentIndex].likers.push(req.user._id.toString());
+
+  console.log(photo.comments[commentIndex]);
+
+  photo.markModified('comments');
+
+  await photo.save();
+
+  res.sendStatus(200);
+});
+
+app.post('/photo/:photoId/comment/cancelLike', gatherUserInfo, async (req, res) => {
+  if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
+
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+  if (!photo) return res.sendStatus(404);
+
+  const author = await UserSchema.findById(photo.author);
+  if (
+    author.privateAccount &&
+    !author.followers.includes(req.user._id) &&
+    req.user._id.toString() !== author._id.toString()
+  )
+    return res.sendStatus(403);
+
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+
+  let commentIndex = photo.comments.findIndex((comment) => comment.id === Number(req.body.id));
+  if (commentIndex === -1) return res.sendStatus(404);
+
+  const likers = photo.comments[commentIndex].likers;
+  const userIndex = likers.indexOf(req.user._id.toString());
+
+  if (userIndex === -1) return res.sendStatus(400);
+
+  likers.splice(userIndex, 1);
+
+  photo.markModified('comments');
+
+  await photo.save();
+
   res.sendStatus(200);
 });
 
