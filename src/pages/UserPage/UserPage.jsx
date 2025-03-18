@@ -183,32 +183,9 @@ export default function UserPage() {
         <div className={classes.divider}></div>
         <div className={classes.buttonBar}>
           <div className={classes.buttonContainer}>
-            <button
-              onClick={() => {
-                setSearchParams((prev) => {
-                  prev.set('variant', 'gallery');
-                  return prev;
-                });
-              }}
-            >
+            <button>
               <img src={GalleryIcon} alt="" /> {getLocale('gallery')}
             </button>
-            {(!searchParams.get('variant') || searchParams.get('variant') === 'gallery') && (
-              <div className={classes.indicator}></div>
-            )}
-          </div>
-          <div className={classes.buttonContainer}>
-            <button
-              onClick={() => {
-                setSearchParams((prev) => {
-                  prev.set('variant', 'tagged');
-                  return prev;
-                });
-              }}
-            >
-              <img src={TaggedIcon} alt="" /> Tagged
-            </button>
-            {searchParams.get('variant') === 'tagged' && <div className={classes.indicator}></div>}
           </div>
         </div>
       </div>

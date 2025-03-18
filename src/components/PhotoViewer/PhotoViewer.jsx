@@ -8,6 +8,7 @@ import fullHeartIcon from '../../assets/icons/heart-full.svg';
 import comment from '../../assets/icons/comment.svg';
 import UserCTX from '../../Context/UserCTX';
 import EmojiIcon from '../../assets/icons/emoji.svg';
+import starIcon from '../../assets/icons/star.svg';
 
 import EmojiPickerReact from 'emoji-picker-react';
 
@@ -118,8 +119,8 @@ export default function PhotoViewer({ user, picId }) {
 
   return (
     <div className={classes.viewerContainer}>
-      <div className={classes.close}>
-        <img onClick={handleClose} src={closeIcon} alt="" />
+      <div className={classes.close} onClick={handleClose}>
+        <img src={closeIcon} alt="" />
       </div>
       {isEmojiMenuShown && (
         <div
@@ -135,11 +136,12 @@ export default function PhotoViewer({ user, picId }) {
         </div>
         <div className={classes.infoContainer}>
           <div className={classes.userInfo}>
-            <img src={user.profilePicture} alt="" />
+            <img className={classes.profilePicture} src={user.profilePicture} alt="" />
             <div>
               <h2>{user.username}</h2>
               {photo?.location && <h3>{photo?.location}</h3>}
             </div>
+            {photo?.isBestFriendsOnly && <img className={classes.bestFriendsOnlyBadge} src={starIcon} alt="" />}
           </div>
           <div className={classes.commentSection}>
             {comments.length < 1 ? (

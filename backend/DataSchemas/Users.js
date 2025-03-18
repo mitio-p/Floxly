@@ -22,6 +22,7 @@ const usersSchema = new mongoose.Schema({
   privateAccount: { type: Boolean, default: false },
   notifications: { type: Array, default: [] },
   followRequestUsers: { type: Array, default: [] },
+  searchHistory: { type: Array, default: [] },
 });
 
 module.exports = mongoose.model('users', usersSchema);

@@ -92,6 +92,7 @@ app.get('/auth/user', gatherUserInfo, async (req, res) => {
   const foundUser = req.user;
   const conversations = await ConversationsSchema.find({ participants: req.user._id.toString() }, '-messages');
   const updatedConversations = [];
+  const searchHistory = [];
 
   for (const conversation of conversations) {
     if (conversation.lastSentMessage) {
@@ -105,6 +106,12 @@ app.get('/auth/user', gatherUserInfo, async (req, res) => {
         dateCreated: conversation.dateCreated,
       });
     }
+  }
+
+  for (const search of foundUser.searchHistory) {
+    const searchedUser = await UsersSchema.findById(search).select('profilePicture username fullName');
+
+    searchHistory.push(searchedUser);
   }
 
   updatedConversations.sort((a, b) => {
@@ -129,6 +136,7 @@ app.get('/auth/user', gatherUserInfo, async (req, res) => {
       privateAccount: foundUser.privateAccount,
       conversations: updatedConversations,
       bestFriends: foundUser.bestFriends,
+      searchHistory,
     });
   } else {
     res.sendStatus(404);

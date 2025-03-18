@@ -17,6 +17,7 @@ export default function PictureGrid({ pictures, enableAddPhoto, onAddPhoto, onSe
             onClick={() => {
               onSelectPhoto(pic._id);
             }}
+            style={pic.isBestFriendsOnly ? { border: 'solid 2px rgb(104, 165, 69)' } : undefined}
           />
         ))}
     </div>

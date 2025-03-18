@@ -36,12 +36,18 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findOne({
     username: req.params.username,
   });
-  console.log(fetchedUser);
   if (!fetchedUser) return res.sendStatus(404);
 
-  const userGallery = await GalleryPhotosSchema.find({
+  let userGallery = await GalleryPhotosSchema.find({
     author: fetchedUser._id,
   });
+
+  if (
+    !fetchedUser.bestFriends.includes(req.user._id.toString()) &&
+    req.user._id.toString() !== fetchedUser._id.toString()
+  ) {
+    userGallery = userGallery.filter((photo) => !photo.isBestFriendsOnly);
+  }
 
   userGallery.sort((photoA, photoB) => photoB.uploadedAt - photoA.uploadedAt);
 
@@ -266,6 +272,48 @@ app.get('/users/search/:query', async (req, res) => {
   res.json(searchResult);
 });
 
+app.post('/users/addSearch', gatherUserInfo, async (req, res) => {
+  if (!req.body) return res.sendStatus(400);
+
+  try {
+    const searchedUser = await UserSchema.findById(req.body).select('profilePicture username fullName');
+
+    if (!searchedUser) return res.sendStatus(404);
+
+    const user = await UserSchema.findById(req.user._id.toString());
+
+    user.searchHistory.push(req.body);
+
+    user.save();
+
+    res.json(searchedUser);
+  } catch {
+    res.sendStatus(500);
+  }
+});
+
+app.post('/users/removeSearch', gatherUserInfo, async (req, res) => {
+  if (!req.body) return res.sendStatus(400);
+
+  try {
+    const searchedUser = await UserSchema.findById(req.body);
+
+    if (!searchedUser) return res.sendStatus(404);
+
+    const user = await UserSchema.findById(req.user._id.toString());
+
+    const searchIndex = user.searchHistory.indexOf(req.body);
+
+    user.searchHistory.splice(searchIndex, 1);
+
+    user.save();
+
+    res.sendStatus(200);
+  } catch {
+    res.sendStatus(500);
+  }
+});
+
 app.post('/user/acceptFollowRequest', gatherUserInfo, async (req, res) => {
   const targetUser = await UserSchema.findById(req.body.id); // User that made the follow request
   const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that will accept
@@ -363,7 +411,12 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
     )
       return res.sendStatus(403);
 
-    if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+    if (
+      photo.isBestFriendsOnly &&
+      !author.bestFriends.includes(req.user._id) &&
+      author._id.toString() !== req.user._id.toString()
+    )
+      return res.sendStatus(403);
 
     const updatedComments = [];
 
@@ -372,6 +425,8 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
       comment.author = author;
       updatedComments.push(comment);
     }
+
+    updatedComments.sort((a, b) => b.likers.length - a.likers.length);
 
     photo.comments = updatedComments;
 
@@ -524,6 +579,34 @@ app.post('/photo/:photoId/comment/cancelLike', gatherUserInfo, async (req, res) 
   await photo.save();
 
   res.sendStatus(200);
+});
+
+app.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => {
+  const userFollowingAccountsIds = req.user.following;
+  let posts = [];
+
+  for (let accountId of userFollowingAccountsIds) {
+    const accountPosts = await GalleryPhotosSchema.find({
+      author: accountId,
+      isBestFriendsOnly: false,
+      isDeactivated: false,
+    });
+
+    let updatedPosts = [];
+
+    for (let post of accountPosts) {
+      const postObj = post.toObject();
+      const authorDetails = await UserSchema.findById(post.author).select('username fullName profilePicture');
+
+      postObj.author = authorDetails;
+      updatedPosts.push(postObj);
+    }
+
+    posts.push(...updatedPosts);
+  }
+
+  posts.sort((postA, postB) => postB.uploadedAt - postA.uploadedAt);
+  res.json(posts);
 });
 
 app.listen(4000);

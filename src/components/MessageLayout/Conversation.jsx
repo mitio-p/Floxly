@@ -22,6 +22,8 @@ export default function Conversation() {
   const [messages, setMessages] = useState(loaderData.messages);
   const navigate = useNavigate();
 
+  console.log(userData.user);
+
   function handleTyping(event) {
     setMessageInput(event.target.value);
     socket.emit('typing', { convId: loaderData.id });
@@ -91,6 +93,21 @@ export default function Conversation() {
 
     socket.on('recieve-message', (data) => {
       if (data.room === loaderData.id) {
+        userData.setUser((oldUserData) => {
+          const updatedUser = { ...oldUserData };
+          let updatedConversations = oldUserData.conversations;
+          updatedConversations = updatedConversations.map((conv) => {
+            if (conv._id === loaderData.id) {
+              conv.lastMessage = data;
+              return conv;
+            }
+            return conv;
+          });
+          console.log(updatedConversations);
+          updatedUser.conversations = updatedConversations;
+          return updatedUser;
+        });
+
         setMessages((prev) => {
           const updatedMessages = [...prev];
           updatedMessages.push(data);

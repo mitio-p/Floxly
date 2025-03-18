@@ -47,9 +47,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
 }
 
-.userInfo img {
+.profilePicture {
   width: 40px;
   height: 40px;
   object-fit: cover;
@@ -214,6 +215,12 @@
   font-family: 'Roboto';
   margin: 0;
   font-size: 20px;
+}
+
+.bestFriendsOnlyBadge {
+  width: 20px;
+  position: absolute;
+  right: 10px;
 }
 
 @keyframes fadeIn {
