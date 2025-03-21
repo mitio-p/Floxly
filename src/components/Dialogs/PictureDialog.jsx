@@ -30,17 +30,39 @@ export default function PictureDialog({ isOpen, onClose }) {
   const setNotification = useContext(NotificationCTX);
   function handleUploadPhoto(event) {
     if (event.target.value) {
-      if (acceptedImageTypes.includes(event.target.files[0].type.split('/')[1])) {
-        if (event.target.files[0].size < maxFileSize) {
-          const blob = new Blob([event.target.files[0]], { type: event.target.files[0].type });
-          const photoURL = URL.createObjectURL(blob);
-          console.log(event.target.files[0]);
-          setCurrentPhoto({ url: photoURL, file: event.target.files[0] });
-          setCurrentStep((prevStep) => prevStep + 1);
-        } else {
-          setNotification('The image exceeded maximum size!');
-          event.target.value = '';
-        }
+      const file = event.target.files[0];
+
+      if (acceptedImageTypes.includes(file.type.split('/')[1])) {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          const image = new Image();
+          image.src = e.target.result;
+
+          image.onload = () => {
+            const width = image.width;
+            const height = image.height;
+
+            if (width >= 350 && height >= 350) {
+              if (file.size < maxFileSize) {
+                const blob = new Blob([file], { type: file.type });
+                const photoURL = URL.createObjectURL(blob);
+
+                console.log(file);
+                setCurrentPhoto({ url: photoURL, file });
+                setCurrentStep((prevStep) => prevStep + 1);
+              } else {
+                setNotification('The image exceeded maximum size!');
+                event.target.value = '';
+              }
+            } else {
+              setNotification("Image's width and height must be at least 350px!");
+              event.target.value = '';
+            }
+          };
+        };
+
+        reader.readAsDataURL(file);
       } else {
         setNotification('Invalid image format!');
         event.target.value = '';

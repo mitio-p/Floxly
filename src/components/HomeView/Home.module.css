@@ -1,7 +1,9 @@
 .homeViewContainer {
-  background-color: rgba(165, 42, 42, 0.549);
-  flex: 2;
-  margin-top: 30px;
+  flex: 3;
+  overflow-y: auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  margin-bottom: 20px;
 }

@@ -1,0 +1,63 @@
+.postContainer {
+  width: 400px;
+  margin-bottom: 15px;
+  margin-top: 10px;
+  border-top: solid 1px var(--border-color);
+  background-color: rgb(14, 14, 14);
+  border-radius: 4px;
+  border-bottom: solid 1px var(--border-color);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom: solid 1px var(--border-color);
+}
+
+.userInfo img {
+  width: 32px;
+  aspect-ratio: 1/1;
+  border-radius: 50px;
+  cursor: pointer;
+}
+
+.userInfo p {
+  color: var(--foreground-color);
+  font-size: 15px;
+  font-family: 'Montserrat';
+  cursor: pointer;
+}
+
+.image {
+  width: 100%;
+  height: 585px;
+  object-fit: contain;
+}
+
+.reactStat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.reactStat img {
+  width: 22px;
+}
+
+.reactStat p {
+  margin: 0;
+  font-family: 'Roboto';
+  color: white;
+  font-weight: 600;
+}
+
+.reactions {
+  display: flex;
+  gap: 10px;
+  padding-left: 10px;
+}
