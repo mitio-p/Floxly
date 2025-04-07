@@ -7,3 +7,34 @@
   height: 100vh;
   margin-bottom: 20px;
 }
+
+.variantSwitcher {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.variantSwitcher p {
+  color: var(--foreground-color);
+  cursor: pointer;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.indicator {
+  width: 0%;
+  height: 3px;
+  background-color: var(--foreground-color);
+  border-radius: 40px;
+  animation-name: expand;
+  animation-duration: 0.3s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes expand {
+  to {
+    width: 100%;
+  }
+}

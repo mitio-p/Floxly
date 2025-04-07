@@ -14,7 +14,7 @@ export default function Post({ data }) {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [likersId, setLikersId] = useState(data.likersId || []);
+  const [likersId, setLikersId] = useState(data.likersId || null);
   const isLiked = likersId && likersId.includes(userData.user.uid);
 
   const navigate = useNavigate();
@@ -84,7 +84,7 @@ export default function Post({ data }) {
         </div>
         <div className={classes.reactStat} onClick={handleSelectPhoto}>
           <img src={commentIcon} />
-          <p>{data.comments.length}</p>
+          {likersId && <p>{data.comments.length}</p>}
         </div>
       </div>
     </div>

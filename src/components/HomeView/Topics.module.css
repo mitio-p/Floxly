@@ -1,0 +1,88 @@
+.createTopic {
+  width: 350px;
+  min-height: 150px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px var(--foreground-color);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 45px;
+  padding-bottom: 45px;
+}
+
+.userInfo {
+  position: absolute;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  top: 7px;
+  left: 7px;
+}
+
+.userInfo img {
+  width: 40px;
+  aspect-ratio: 1/1;
+  border-radius: 40px;
+  object-fit: cover;
+}
+
+.userInfo p {
+  margin: 0;
+  color: var(--foreground-color);
+  font-family: 'Montserrat';
+}
+
+.post {
+  position: absolute;
+  bottom: 7px;
+  right: 7px;
+  background: none;
+  border: none;
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.topicInput {
+  border-bottom: solid 1px var(--foreground-color);
+  width: 80%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-bottom: 2px;
+  position: relative;
+}
+
+.topicInput textarea {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  font-size: 15px;
+  resize: none;
+  height: 18px;
+  width: 85%;
+  overflow: hidden;
+}
+
+.topicInput img {
+  width: 21px;
+  aspect-ratio: 1/1;
+  cursor: pointer;
+}
+
+.emojiMenuBackground {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+.emojiMenu {
+  position: absolute;
+  top: 25px;
+  z-index: 2;
+}

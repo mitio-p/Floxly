@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const usersSchema = new mongoose.Schema({
   username: { type: String, required: true, max: 20 },
@@ -23,7 +23,8 @@ const usersSchema = new mongoose.Schema({
   notifications: { type: Array, default: [] },
   followRequestUsers: { type: Array, default: [] },
   searchHistory: { type: Array, default: [] },
-  role: { type: String, default: "user" },
+  role: { type: String, default: 'user' },
+  isDeactivated: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model("users", usersSchema);
+module.exports = mongoose.model('users', usersSchema);

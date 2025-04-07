@@ -60,7 +60,7 @@ export default function PhotoViewer({ user, picId }) {
       credentials: 'include',
     });
 
-    if (response.ok) {
+    if (response.ok && likersId) {
       setLikersId((prev) => {
         const updatedLikers = [...prev];
         updatedLikers.push(userData.user.uid);
@@ -113,7 +113,7 @@ export default function PhotoViewer({ user, picId }) {
   }, []);
 
   useEffect(() => {
-    setLikersId(photo?.likersId || []);
+    setLikersId(photo?.likersId || null);
     setComments(photo?.comments || []);
   }, [photo]);
 

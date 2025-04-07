@@ -70,7 +70,7 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
         author: fetchedUser.username,
       });
       publicUserInfo.topics = await TopicsSchema.find({
-        author: fetchedUser.username,
+        author: fetchedUser._id,
       });
     } else {
       if (!fetchedUser.privateAccount || fetchedUser.followers.includes(req.user._id.toString())) {
@@ -426,6 +426,8 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
       updatedComments.push(comment);
     }
 
+    if (photo.isLikesCountHidden && photo.author !== req.user._id.toString()) photo.likersId = null;
+
     updatedComments.sort((a, b) => b.likers.length - a.likers.length);
 
     photo.comments = updatedComments;
@@ -607,6 +609,33 @@ app.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => {
 
   posts.sort((postA, postB) => postB.uploadedAt - postA.uploadedAt);
   res.json(posts);
+});
+
+app.post('/user/upload-topic', gatherUserInfo, (req, res) => {
+  const text = req.body;
+
+  if (text.length < 1 || text.length > 1000) return res.sendStatus(400);
+
+  TopicsSchema.create({
+    text,
+    author: req.user._id,
+  });
+  res.sendStatus(200);
+});
+app.post('/user/deactivate', gatherUserInfo, async (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(401);
+
+  if (!req.body.id) return res.sendStatus(400);
+
+  const userForDeactivation = await UserSchema.findById(req.body.id);
+
+  if (!userForDeactivation) return res.sendStatus(404);
+
+  userForDeactivation.isDeactivated = true;
+
+  userForDeactivation.save();
+
+  res.sendStatus(200);
 });
 
 app.listen(4000);

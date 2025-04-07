@@ -14,6 +14,7 @@ import PictureGrid from '../../components/PictureGrid/PictureGrid.jsx';
 import { getLocale } from '../../Utils/localization.js';
 import PhotoViewer from '../../components/PhotoViewer/PhotoViewer.jsx';
 import SocketCTX from '../../Context/SocketCTX.jsx';
+import ConfirmDialog from '../../components/Dialogs/ConfirmDialog.jsx';
 
 export default function UserPage() {
   const loaderData = useLoaderData();
@@ -24,6 +25,7 @@ export default function UserPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [followers, setFollowers] = useState(loaderData.user.followers.length);
   const [pictureDialog, setPictureDialog] = useState(false);
+  const [confirmDialogText, setConfirmDialogText] = useState('');
 
   const socket = useContext(SocketCTX);
 
@@ -110,6 +112,15 @@ export default function UserPage() {
         }}
       />
       {searchParams.get('p') && <PhotoViewer user={loaderData.user} picId={searchParams.get('p')} />}
+      {confirmDialogText.length > 0 && (
+        <ConfirmDialog
+          isDangerous={true}
+          text={confirmDialogText}
+          onCancel={() => {
+            setConfirmDialogText('');
+          }}
+        />
+      )}
       <div className={classes.userInfo}>
         <img src={loaderData.user.profilePicture} />
         <div className={classes.userStats}>
@@ -118,6 +129,7 @@ export default function UserPage() {
             {isCurrentUser ? (
               <>
                 <button
+                  className={classes.userButtons}
                   onClick={() => {
                     navigate('/settings/edit');
                   }}
@@ -125,6 +137,7 @@ export default function UserPage() {
                   {getLocale('edit_profile')}
                 </button>{' '}
                 <button
+                  className={classes.userButtons}
                   onClick={() => {
                     navigate('/settings');
                   }}
@@ -134,7 +147,10 @@ export default function UserPage() {
               </>
             ) : (
               <>
-                <button onClick={isFollowing ? handleUnfollow : isRequested ? handleCancelRequest : handleFollow}>
+                <button
+                  className={classes.userButtons}
+                  onClick={isFollowing ? handleUnfollow : isRequested ? handleCancelRequest : handleFollow}
+                >
                   {isFollowing
                     ? getLocale('unfollow')
                     : isRequested
@@ -142,7 +158,19 @@ export default function UserPage() {
                     : getLocale('follow')}
                 </button>
                 {(!loaderData.user.privateAccount || isFollowing) && (
-                  <button onClick={handleCreateConversation}>{getLocale('message')}</button>
+                  <button className={classes.userButtons} onClick={handleCreateConversation}>
+                    {getLocale('message')}
+                  </button>
+                )}
+                {userData.user.role === 'admin' && userData.user.uid !== loaderData.user.uid && (
+                  <button
+                    className={classes.deactivateButton}
+                    onClick={() => {
+                      setConfirmDialogText('Are you sure you wanmt to deactivate this account ?');
+                    }}
+                  >
+                    Deactivate account
+                  </button>
                 )}
               </>
             )}

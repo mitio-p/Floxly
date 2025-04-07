@@ -26,6 +26,7 @@
   justify-content: start;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .userStats {
@@ -49,7 +50,7 @@
   font-weight: 500;
 }
 
-.userStats button {
+.userButtons {
   height: 28px;
   background-color: var(--foreground-color);
   border: solid 1px var(--foreground-color);
@@ -67,7 +68,7 @@
   font-family: 'Rubik';
 }
 
-.userStats button:hover {
+.userButtons:hover {
   background: none;
   color: var(--foreground-color);
   border: solid 1px var(--foreground-color);
@@ -176,4 +177,22 @@
 
 .uploadPhotoSuggest p:hover {
   text-decoration: underline;
+}
+
+.deactivateButton {
+  height: 28px;
+  background: none;
+  border: solid 1px #c14343;
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+  color: #c14343;
+}
+
+.deactivateButton:hover {
+  background-color: #c14343;
+  color: black;
 }
