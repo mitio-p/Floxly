@@ -1,26 +1,26 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const multer = require('multer');
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const multer = require("multer");
 const storage = multer.memoryStorage();
-const UserSchema = require('./DataSchemas/Users');
-const PostsSchema = require('./DataSchemas/Posts');
-const TopicsSchema = require('./DataSchemas/Topics');
-const GalleryPhotosSchema = require('./DataSchemas/GalleryPhotos.js');
-const ConversationsSchema = require('./DataSchemas/Conversations.js');
-const crypto = require('crypto');
-const AWS = require('aws-sdk');
-const gatherUserInfo = require('./Middleware/gatherUserInfo.js');
-const GalleryPhotos = require('./DataSchemas/GalleryPhotos.js');
-require('dotenv').config();
+const UserSchema = require("./DataSchemas/Users");
+const PostsSchema = require("./DataSchemas/Posts");
+const TopicsSchema = require("./DataSchemas/Topics");
+const GalleryPhotosSchema = require("./DataSchemas/GalleryPhotos.js");
+const ConversationsSchema = require("./DataSchemas/Conversations.js");
+const crypto = require("crypto");
+const AWS = require("aws-sdk");
+const gatherUserInfo = require("./Middleware/gatherUserInfo.js");
+const GalleryPhotos = require("./DataSchemas/GalleryPhotos.js");
+require("dotenv").config();
 const upload = multer({ storage });
 
 const s3 = new AWS.S3();
 
-const awsRegion = 'eu-north-1';
+const awsRegion = "eu-north-1";
 
 mongoose.connect(process.env.DATABASE_CONNECTION_STRING);
 
@@ -30,9 +30,9 @@ app.use(express.text());
 
 app.use(cookieParser());
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
-app.get('/user/:username', gatherUserInfo, async (req, res) => {
+app.get("/user/:username", gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findOne({
     username: req.params.username,
   });
@@ -62,6 +62,7 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
       bio: fetchedUser.bio || null,
       photosCount: userGallery.length,
       privateAccount: fetchedUser.privateAccount,
+      isDeactivated: fetchedUser.isDeactivated,
     };
 
     if (fetchedUser._id.toString() === req.user._id.toString()) {
@@ -73,13 +74,16 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
         author: fetchedUser._id,
       });
     } else {
-      if (!fetchedUser.privateAccount || fetchedUser.followers.includes(req.user._id.toString())) {
+      if (
+        !fetchedUser.privateAccount ||
+        fetchedUser.followers.includes(req.user._id.toString())
+      ) {
         publicUserInfo.gallery = userGallery;
         publicUserInfo.posts = await PostsSchema.find({
           author: fetchedUser.username,
         });
         publicUserInfo.topics = await TopicsSchema.find({
-          author: fetchedUser.username,
+          author: fetchedUser._id,
         });
       }
     }
@@ -89,14 +93,16 @@ app.get('/user/:username', gatherUserInfo, async (req, res) => {
     res.status(200).json({
       user: publicUserInfo,
       isFollowing: isFollowing,
-      isRequested: fetchedUser.followRequestUsers.includes(req.user._id.toString()),
+      isRequested: fetchedUser.followRequestUsers.includes(
+        req.user._id.toString()
+      ),
     });
   } else {
     res.sendStatus(404);
   }
 });
 
-app.get('/user/follow/:username', gatherUserInfo, async (req, res) => {
+app.get("/user/follow/:username", gatherUserInfo, async (req, res) => {
   const targetUser = await UserSchema.findOne({
     username: req.params.username,
   }); //fetching user that will be followed
@@ -111,7 +117,7 @@ app.get('/user/follow/:username', gatherUserInfo, async (req, res) => {
     if (!targetUser.privateAccount) {
       targetUser.followers.push(fetchedUser._id.toString());
       targetUser.notifications.push({
-        type: 'followMessage',
+        type: "followMessage",
         from: fetchedUser._id.toString(),
         date: Date.now(),
         isRead: false,
@@ -123,7 +129,7 @@ app.get('/user/follow/:username', gatherUserInfo, async (req, res) => {
     } else {
       targetUser.followRequestUsers.push(fetchedUser._id.toString());
       targetUser.notifications.push({
-        type: 'followRequest',
+        type: "followRequest",
         from: fetchedUser._id.toString(),
         date: Date.now(),
         isRead: false,
@@ -136,7 +142,7 @@ app.get('/user/follow/:username', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.get('/user/unfollow/:username', gatherUserInfo, async (req, res) => {
+app.get("/user/unfollow/:username", gatherUserInfo, async (req, res) => {
   const targetUser = await UserSchema.findOne({
     username: req.params.username,
   }); //fetching user that will be unfollowed
@@ -147,107 +153,128 @@ app.get('/user/unfollow/:username', gatherUserInfo, async (req, res) => {
     targetUser !== fetchedUser &&
     targetUser.followers.includes(fetchedUser._id.toString())
   ) {
-    targetUser.followers.splice(targetUser.followers.indexOf(fetchedUser._id.toString()), 1);
-    fetchedUser.following.splice(fetchedUser.following.indexOf(targetUser._id.toString(), 1));
+    targetUser.followers.splice(
+      targetUser.followers.indexOf(fetchedUser._id.toString()),
+      1
+    );
+    fetchedUser.following.splice(
+      fetchedUser.following.indexOf(targetUser._id.toString(), 1)
+    );
     targetUser.save();
     fetchedUser.save();
     res.sendStatus(200);
   }
 });
 
-app.post('/user/uploadImageToGallery', upload.single('photoFile'), gatherUserInfo, async (req, res) => {
-  const user = await UserSchema.findById(req.user._id);
-  const formData = req.body;
+app.post(
+  "/user/uploadImageToGallery",
+  upload.single("photoFile"),
+  gatherUserInfo,
+  async (req, res) => {
+    const user = await UserSchema.findById(req.user._id);
+    const formData = req.body;
 
-  const bucketName = 'user-gallery-photos';
-  const objectKey = crypto.randomBytes(10).toString('hex') + req.file.originalname;
+    const bucketName = "user-gallery-photos";
+    const objectKey =
+      crypto.randomBytes(10).toString("hex") + req.file.originalname;
 
-  const params = {
-    Bucket: bucketName,
-    Key: objectKey,
-    Body: req.file.buffer,
-  };
+    const params = {
+      Bucket: bucketName,
+      Key: objectKey,
+      Body: req.file.buffer,
+    };
 
-  s3.putObject(params)
-    .promise()
-    .then(async () => {
-      GalleryPhotosSchema.create({
-        author: user._id,
-        imgSrc: `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`,
-        text: formData.text,
-        location: formData.location,
-        tagged: formData.tagged,
-        isBestFriendsOnly: formData.bestFriendsOnly === 'true',
-        isLikesCountHidden: formData.isLikesCountHidden === 'true',
-        isCommentsOff: formData.isCommentsOff === 'true',
-      })
-        .then(() => {
-          res.sendStatus(200);
+    s3.putObject(params)
+      .promise()
+      .then(async () => {
+        GalleryPhotosSchema.create({
+          author: user._id,
+          imgSrc: `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`,
+          text: formData.text,
+          location: formData.location,
+          tagged: formData.tagged,
+          isBestFriendsOnly: formData.bestFriendsOnly === "true",
+          isLikesCountHidden: formData.isLikesCountHidden === "true",
+          isCommentsOff: formData.isCommentsOff === "true",
         })
-        .catch(() => {
-          res.sendStatus(500);
-        });
-    })
-    .catch(() => {
-      res.sendStatus(500);
-    });
-});
-
-app.post('/user/updateUserInfo', upload.single('photo'), gatherUserInfo, async (req, res) => {
-  const formData = req.body;
-
-  const bucketName = 'user-profile-pictures-floxly1';
-
-  if (formData.username || formData.fullName || formData.bio || req.file) {
-    const fetchedUser = await UserSchema.findById(req.user._id);
-
-    if (req.file) {
-      const objectKey = crypto.randomBytes(10).toString('hex') + req.file.originalname;
-      const params = {
-        Bucket: bucketName,
-        Key: objectKey,
-        Body: req.file.buffer,
-      };
-      await s3.putObject(params).promise();
-      fetchedUser.profilePicture = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`;
-    }
-
-    if (formData?.username) {
-      const duplcatedUser = await UserSchema.findOne({
-        username: formData.username,
+          .then(() => {
+            res.sendStatus(200);
+          })
+          .catch(() => {
+            res.sendStatus(500);
+          });
+      })
+      .catch(() => {
+        res.sendStatus(500);
       });
-      if (duplcatedUser) {
-        return res.status(400).send({
-          errors: { username: 'This username is already taken' },
-        });
-      }
-    }
-    Object.keys(formData).forEach(async (key) => {
-      formData[key] ? (fetchedUser[key] = formData[key]) : null;
-    });
-    fetchedUser.save();
-    res.json({
-      success: { message: 'User profile updated successfully!' },
-    });
-  } else {
-    res.status(400).send({
-      error: { message: 'Enter at least one field to update the profile!' },
-    });
   }
-});
+);
 
-app.get('/users/best_friends', gatherUserInfo, async (req, res) => {
+app.post(
+  "/user/updateUserInfo",
+  upload.single("photo"),
+  gatherUserInfo,
+  async (req, res) => {
+    const formData = req.body;
+
+    const bucketName = "user-profile-pictures-floxly1";
+
+    if (formData.username || formData.fullName || formData.bio || req.file) {
+      const fetchedUser = await UserSchema.findById(req.user._id);
+
+      if (req.file) {
+        const objectKey =
+          crypto.randomBytes(10).toString("hex") + req.file.originalname;
+        const params = {
+          Bucket: bucketName,
+          Key: objectKey,
+          Body: req.file.buffer,
+        };
+        await s3.putObject(params).promise();
+        fetchedUser.profilePicture = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`;
+      }
+
+      if (formData?.username) {
+        const duplcatedUser = await UserSchema.findOne({
+          username: formData.username,
+        });
+        if (duplcatedUser) {
+          return res.status(400).send({
+            errors: { username: "This username is already taken" },
+          });
+        }
+      }
+      Object.keys(formData).forEach(async (key) => {
+        formData[key] ? (fetchedUser[key] = formData[key]) : null;
+      });
+      fetchedUser.save();
+      res.json({
+        success: { message: "User profile updated successfully!" },
+      });
+    } else {
+      res.status(400).send({
+        error: { message: "Enter at least one field to update the profile!" },
+      });
+    }
+  }
+);
+
+app.get("/users/best_friends", gatherUserInfo, async (req, res) => {
   const userBestFriendIds = req.user.bestFriends;
   let bestFriendsList = [];
 
   for (const bestFriendId of userBestFriendIds) {
-    bestFriendsList.push(await UserSchema.findById(bestFriendId).select('profilePicture username fullName'));
+    bestFriendsList.push(
+      await UserSchema.findById(bestFriendId).select(
+        "profilePicture username fullName"
+      )
+    );
   }
 
   res.json(bestFriendsList);
 });
 
-app.get('/user/cancelRequest/:username', gatherUserInfo, async (req, res) => {
+app.get("/user/cancelRequest/:username", gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findOne({
     username: req.params.username,
   });
@@ -264,19 +291,21 @@ app.get('/user/cancelRequest/:username', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.get('/users/search/:query', async (req, res) => {
+app.get("/users/search/:query", async (req, res) => {
   const query = req.params.query;
   const searchResult = await UserSchema.find({
-    username: { $regex: query, $options: 'i' },
-  }).select('username profilePicture fullName');
+    username: { $regex: query, $options: "i" },
+  }).select("username profilePicture fullName");
   res.json(searchResult);
 });
 
-app.post('/users/addSearch', gatherUserInfo, async (req, res) => {
+app.post("/users/addSearch", gatherUserInfo, async (req, res) => {
   if (!req.body) return res.sendStatus(400);
 
   try {
-    const searchedUser = await UserSchema.findById(req.body).select('profilePicture username fullName');
+    const searchedUser = await UserSchema.findById(req.body).select(
+      "profilePicture username fullName"
+    );
 
     if (!searchedUser) return res.sendStatus(404);
 
@@ -292,7 +321,7 @@ app.post('/users/addSearch', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.post('/users/removeSearch', gatherUserInfo, async (req, res) => {
+app.post("/users/removeSearch", gatherUserInfo, async (req, res) => {
   if (!req.body) return res.sendStatus(400);
 
   try {
@@ -314,12 +343,13 @@ app.post('/users/removeSearch', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.post('/user/acceptFollowRequest', gatherUserInfo, async (req, res) => {
+app.post("/user/acceptFollowRequest", gatherUserInfo, async (req, res) => {
   const targetUser = await UserSchema.findById(req.body.id); // User that made the follow request
   const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that will accept
 
   if (targetUser) {
-    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString())) return res.sendStatus(404);
+    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString()))
+      return res.sendStatus(404);
     targetUser.following.push(req.user._id.toString());
     fetchedUser.followers.push(req.body.id);
     const index = fetchedUser.followRequestUsers.indexOf(req.user._id);
@@ -336,12 +366,13 @@ app.post('/user/acceptFollowRequest', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.post('/user/rejectFollowRequest', gatherUserInfo, async (req, res) => {
+app.post("/user/rejectFollowRequest", gatherUserInfo, async (req, res) => {
   const targetUser = await UserSchema.findById(req.body.id); // User that made the follow request
   const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that reject
 
   if (targetUser) {
-    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString())) return res.sendStatus(404);
+    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString()))
+      return res.sendStatus(404);
     const index = fetchedUser.followRequestUsers.indexOf(req.user._id);
     fetchedUser.followRequestUsers.splice(index, 1);
     fetchedUser.notifications = fetchedUser.notifications.filter(
@@ -355,11 +386,11 @@ app.post('/user/rejectFollowRequest', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.get('/notifications', gatherUserInfo, async (req, res) => {
+app.get("/notifications", gatherUserInfo, async (req, res) => {
   let updatedNotifications = [];
 
   for (const notification of req.user.notifications) {
-    if (notification.type === 'followRequest') {
+    if (notification.type === "followRequest") {
       const sender = await UserSchema.findById(notification.from);
       notification.from = {
         profilePicture: sender.profilePicture,
@@ -375,7 +406,7 @@ app.get('/notifications', gatherUserInfo, async (req, res) => {
   res.json(updatedNotifications.reverse());
 });
 
-app.post('/user/addBestFriend', gatherUserInfo, async (req, res) => {
+app.post("/user/addBestFriend", gatherUserInfo, async (req, res) => {
   if (!req.user.following.includes(req.body)) return res.sendStatus(400);
 
   if (req.user.bestFriends.includes(req.body)) return res.status(401);
@@ -386,7 +417,7 @@ app.post('/user/addBestFriend', gatherUserInfo, async (req, res) => {
   await user.save();
   res.sendStatus(200);
 });
-app.post('/user/removeBestFriend', gatherUserInfo, async (req, res) => {
+app.post("/user/removeBestFriend", gatherUserInfo, async (req, res) => {
   if (!req.user.following.includes(req.body)) return res.sendStatus(400);
 
   if (!req.user.bestFriends.includes(req.body)) return res.status(404);
@@ -399,7 +430,7 @@ app.post('/user/removeBestFriend', gatherUserInfo, async (req, res) => {
   res.sendStatus(200);
 });
 
-app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
+app.get("/photo/:photoId", gatherUserInfo, async (req, res) => {
   try {
     const photo = await GalleryPhotosSchema.findById(req.params.photoId);
     const author = await UserSchema.findById(photo.author);
@@ -421,12 +452,15 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
     const updatedComments = [];
 
     for (let comment of photo.comments) {
-      const author = await UserSchema.findById(comment.author).select('profilePicture username');
+      const author = await UserSchema.findById(comment.author).select(
+        "profilePicture username"
+      );
       comment.author = author;
       updatedComments.push(comment);
     }
 
-    if (photo.isLikesCountHidden && photo.author !== req.user._id.toString()) photo.likersId = null;
+    if (photo.isLikesCountHidden && photo.author !== req.user._id.toString())
+      photo.likersId = null;
 
     updatedComments.sort((a, b) => b.likers.length - a.likers.length);
 
@@ -438,7 +472,7 @@ app.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
   }
 });
 
-app.post('/photo/like/:photoId', gatherUserInfo, async (req, res) => {
+app.post("/photo/like/:photoId", gatherUserInfo, async (req, res) => {
   const photo = await GalleryPhotosSchema.findById(req.params.photoId);
   const author = await UserSchema.findById(photo.author);
 
@@ -456,7 +490,7 @@ app.post('/photo/like/:photoId', gatherUserInfo, async (req, res) => {
   res.sendStatus(200);
 });
 
-app.post('/photo/dislike/:photoId', gatherUserInfo, async (req, res) => {
+app.post("/photo/dislike/:photoId", gatherUserInfo, async (req, res) => {
   const photo = await GalleryPhotosSchema.findById(req.params.photoId);
   const author = await UserSchema.findById(photo.author);
 
@@ -475,7 +509,7 @@ app.post('/photo/dislike/:photoId', gatherUserInfo, async (req, res) => {
   res.sendStatus(200);
 });
 
-app.post('/photo/:photoId/comment', gatherUserInfo, async (req, res) => {
+app.post("/photo/:photoId/comment", gatherUserInfo, async (req, res) => {
   if (!req.body.text) return res.sendStatus(400);
 
   const photo = await GalleryPhotosSchema.findById(req.params.photoId);
@@ -488,7 +522,8 @@ app.post('/photo/:photoId/comment', gatherUserInfo, async (req, res) => {
   )
     return res.sendStatus(403);
 
-  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id))
+    return res.sendStatus(403);
 
   if (!photo) return res.sendStatus(404);
 
@@ -513,11 +548,18 @@ app.post('/photo/:photoId/comment', gatherUserInfo, async (req, res) => {
 
   await photo.save();
 
-  res.json({ ...comment, author: { profilePicture: req.user.profilePicture, username: req.user.username } });
+  res.json({
+    ...comment,
+    author: {
+      profilePicture: req.user.profilePicture,
+      username: req.user.username,
+    },
+  });
 });
 
-app.post('/photo/:photoId/comment/like', gatherUserInfo, async (req, res) => {
-  if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
+app.post("/photo/:photoId/comment/like", gatherUserInfo, async (req, res) => {
+  if (!req.body.id || typeof req.body.id !== "number")
+    return res.sendStatus(400);
 
   const photo = await GalleryPhotosSchema.findById(req.params.photoId);
   if (!photo) return res.sendStatus(404);
@@ -530,9 +572,12 @@ app.post('/photo/:photoId/comment/like', gatherUserInfo, async (req, res) => {
   )
     return res.sendStatus(403);
 
-  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id))
+    return res.sendStatus(403);
 
-  let commentIndex = photo.comments.findIndex((comment) => comment.id === req.body.id);
+  let commentIndex = photo.comments.findIndex(
+    (comment) => comment.id === req.body.id
+  );
   if (commentIndex === -1) return res.sendStatus(404);
 
   if (photo.comments[commentIndex].likers.includes(req.user._id.toString())) {
@@ -543,47 +588,55 @@ app.post('/photo/:photoId/comment/like', gatherUserInfo, async (req, res) => {
 
   console.log(photo.comments[commentIndex]);
 
-  photo.markModified('comments');
+  photo.markModified("comments");
 
   await photo.save();
 
   res.sendStatus(200);
 });
 
-app.post('/photo/:photoId/comment/cancelLike', gatherUserInfo, async (req, res) => {
-  if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
+app.post(
+  "/photo/:photoId/comment/cancelLike",
+  gatherUserInfo,
+  async (req, res) => {
+    if (!req.body.id || typeof req.body.id !== "number")
+      return res.sendStatus(400);
 
-  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
-  if (!photo) return res.sendStatus(404);
+    const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+    if (!photo) return res.sendStatus(404);
 
-  const author = await UserSchema.findById(photo.author);
-  if (
-    author.privateAccount &&
-    !author.followers.includes(req.user._id) &&
-    req.user._id.toString() !== author._id.toString()
-  )
-    return res.sendStatus(403);
+    const author = await UserSchema.findById(photo.author);
+    if (
+      author.privateAccount &&
+      !author.followers.includes(req.user._id) &&
+      req.user._id.toString() !== author._id.toString()
+    )
+      return res.sendStatus(403);
 
-  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+    if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id))
+      return res.sendStatus(403);
 
-  let commentIndex = photo.comments.findIndex((comment) => comment.id === Number(req.body.id));
-  if (commentIndex === -1) return res.sendStatus(404);
+    let commentIndex = photo.comments.findIndex(
+      (comment) => comment.id === Number(req.body.id)
+    );
+    if (commentIndex === -1) return res.sendStatus(404);
 
-  const likers = photo.comments[commentIndex].likers;
-  const userIndex = likers.indexOf(req.user._id.toString());
+    const likers = photo.comments[commentIndex].likers;
+    const userIndex = likers.indexOf(req.user._id.toString());
 
-  if (userIndex === -1) return res.sendStatus(400);
+    if (userIndex === -1) return res.sendStatus(400);
 
-  likers.splice(userIndex, 1);
+    likers.splice(userIndex, 1);
 
-  photo.markModified('comments');
+    photo.markModified("comments");
 
-  await photo.save();
+    await photo.save();
 
-  res.sendStatus(200);
-});
+    res.sendStatus(200);
+  }
+);
 
-app.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => {
+app.get("/user/fetch/recommended-posts", gatherUserInfo, async (req, res) => {
   const userFollowingAccountsIds = req.user.following;
   let posts = [];
 
@@ -598,7 +651,9 @@ app.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => {
 
     for (let post of accountPosts) {
       const postObj = post.toObject();
-      const authorDetails = await UserSchema.findById(post.author).select('username fullName profilePicture');
+      const authorDetails = await UserSchema.findById(post.author).select(
+        "username fullName profilePicture"
+      );
 
       postObj.author = authorDetails;
       updatedPosts.push(postObj);
@@ -611,7 +666,7 @@ app.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => {
   res.json(posts);
 });
 
-app.post('/user/upload-topic', gatherUserInfo, (req, res) => {
+app.post("/user/upload-topic", gatherUserInfo, (req, res) => {
   const text = req.body;
 
   if (text.length < 1 || text.length > 1000) return res.sendStatus(400);
@@ -622,8 +677,11 @@ app.post('/user/upload-topic', gatherUserInfo, (req, res) => {
   });
   res.sendStatus(200);
 });
-app.post('/user/deactivate', gatherUserInfo, async (req, res) => {
-  if (req.user.role !== 'admin') return res.sendStatus(401);
+
+app.post("/user/deactivate", gatherUserInfo, async (req, res) => {
+  if (req.user.role !== "admin") return res.sendStatus(401);
+
+  console.log(req.body.id);
 
   if (!req.body.id) return res.sendStatus(400);
 
