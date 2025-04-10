@@ -5,7 +5,7 @@ import authFetch from '../../Utils/authFetch';
 export default function BestFriendRow({ data, isBestFriends }) {
   const [bestFriends, setBestFriends] = useState(isBestFriends);
   async function handleAddBestFriend() {
-    const response = await authFetch('http://localhost:4000/user/addBestFriend', {
+    const response = await authFetch('http://localhost:3000/floxly/user/addBestFriend', {
       method: 'POST',
       credentials: 'include',
       body: data._id,
@@ -18,7 +18,7 @@ export default function BestFriendRow({ data, isBestFriends }) {
   }
 
   async function handleRemoveBestFriend() {
-    const response = await authFetch('http://localhost:4000/user/removeBestFriend', {
+    const response = await authFetch('http://localhost:3000/floxly/user/removeBestFriend', {
       method: 'POST',
       credentials: 'include',
       body: data._id,

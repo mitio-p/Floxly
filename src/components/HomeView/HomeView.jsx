@@ -4,6 +4,7 @@ import UserCTX from '../../Context/UserCTX';
 import { useLoaderData, useSearchParams } from 'react-router-dom';
 import Post from './Post';
 import Topics from './Topics';
+import EmptyPagePost from './EmptyPagePost';
 
 export default function HomeView() {
   const loaderData = useLoaderData();
@@ -36,6 +37,7 @@ export default function HomeView() {
         </div>
       </div>
       {searchParams.get('variant') !== 'topics' && loaderData.map((post) => <Post key={post._id} data={post} />)}
+      {searchParams.get('variant') !== 'topics' && loaderData.length < 1 && <EmptyPagePost />}
       {searchParams.get('variant') === 'topics' && <Topics />}
     </div>
   );

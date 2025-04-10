@@ -171,7 +171,7 @@ export default function PictureDialog({ isOpen, onClose }) {
 export async function action({ request }) {
   const formData = await request.formData();
 
-  const response = await authFetch('http://localhost:4000/user/uploadImageToGallery', {
+  const response = await authFetch('http://localhost:3000/floxly/user/uploadImageToGallery', {
     method: 'POST',
     body: formData,
     credentials: 'include',

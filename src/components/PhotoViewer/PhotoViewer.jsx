@@ -35,7 +35,7 @@ export default function PhotoViewer({ user, picId }) {
   console.log(comments);
 
   async function handleFetchPhoto() {
-    const response = await authFetch(`http://localhost:4000/photo/${picId}`, {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/${picId}`, {
       credentials: 'include',
     });
 
@@ -55,7 +55,7 @@ export default function PhotoViewer({ user, picId }) {
   }
 
   async function handleLike() {
-    const response = await authFetch(`http://localhost:4000/photo/like/${searchParams.get('p')}`, {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/like/${searchParams.get('p')}`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -70,7 +70,7 @@ export default function PhotoViewer({ user, picId }) {
   }
 
   async function handleDislike() {
-    const response = await authFetch(`http://localhost:4000/photo/dislike/${searchParams.get('p')}`, {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/dislike/${searchParams.get('p')}`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -90,7 +90,7 @@ export default function PhotoViewer({ user, picId }) {
   }
 
   async function handleComment() {
-    const response = await authFetch(`http://localhost:4000/photo/${picId}/comment`, {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/${picId}/comment`, {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({ text: commentInput }),

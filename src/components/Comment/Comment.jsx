@@ -13,7 +13,7 @@ export default function Comment({ data, picId }) {
   const isLiked = likers.includes(userData.user.uid);
 
   async function handleLike() {
-    const responce = await authFetch(`http://localhost:4000/photo/${picId}/comment/like`, {
+    const responce = await authFetch(`http://localhost:3000/floxly/photo/${picId}/comment/like`, {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({ id: data.id }),
@@ -30,7 +30,7 @@ export default function Comment({ data, picId }) {
   }
 
   async function handleCancelLike() {
-    const responce = await authFetch(`http://localhost:4000/photo/${picId}/comment/cancelLike`, {
+    const responce = await authFetch(`http://localhost:3000/floxly/photo/${picId}/comment/cancelLike`, {
       method: 'POST',
       credentials: 'include',
       body: JSON.stringify({ id: data.id }),

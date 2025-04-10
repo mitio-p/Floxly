@@ -12,7 +12,7 @@ export default function BestFriendsPage() {
 
   async function handleSearch(search) {
     if (search.length > 2) {
-      const response = await fetch(`http://localhost:4000/users/search/${search}`);
+      const response = await fetch(`http://localhost:3000/floxly/users/search/${search}`);
 
       if (response.ok)
         setSearchResult((await response.json()).filter((user) => userData.user.following.includes(user._id)));
@@ -53,7 +53,7 @@ export default function BestFriendsPage() {
 }
 
 export async function loader() {
-  const response = await authFetch('http://localhost:4000/users/best_friends', { credentials: 'include' });
+  const response = await authFetch('http://localhost:3000/floxly/users/best_friends', { credentials: 'include' });
 
   return response;
 }

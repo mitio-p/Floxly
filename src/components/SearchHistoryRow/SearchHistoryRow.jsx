@@ -6,7 +6,11 @@ import authFetch from '../../Utils/authFetch';
 
 export default function SearchHistoryRow({ data, to, onRemoveRow }) {
   async function handleRemoveSearchedUser(id) {
-    await authFetch('http://localhost:4000/users/removeSearch', { method: 'POST', body: id, credentials: 'include' });
+    await authFetch('http://localhost:3000/floxly/users/removeSearch', {
+      method: 'POST',
+      body: id,
+      credentials: 'include',
+    });
     onRemoveRow(data._id);
   }
 

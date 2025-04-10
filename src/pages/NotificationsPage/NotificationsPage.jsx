@@ -19,7 +19,7 @@ export default function NotificationPage() {
 }
 
 export async function loader() {
-  const response = await authFetch('http://localhost:4000/notifications', { credentials: 'include' });
+  const response = await authFetch('http://localhost:3000/floxly/notifications', { credentials: 'include' });
 
   if (response.ok) {
     return response;

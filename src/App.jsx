@@ -99,7 +99,7 @@ const router = createBrowserRouter([
   },
 ]);
 
-const socket = io.connect('http://localhost:5000', { withCredentials: true });
+const socket = io.connect('http://localhost:3000', { withCredentials: true });
 
 function App() {
   const [userData, setUserData] = useState({});

@@ -8,7 +8,7 @@ export default function NotificationRow({ data }) {
   const revalidator = useRevalidator();
 
   async function handleConfirm() {
-    const response = await authFetch('http://localhost:4000/user/acceptFollowRequest', {
+    const response = await authFetch('http://localhost:3000/floxly/user/acceptFollowRequest', {
       credentials: 'include',
       method: 'POST',
       body: JSON.stringify({ id: data.from.id }),
@@ -20,7 +20,7 @@ export default function NotificationRow({ data }) {
   }
 
   async function handleReject() {
-    const response = await authFetch('http://localhost:4000/user/rejectFollowRequest', {
+    const response = await authFetch('http://localhost:3000/floxly/user/rejectFollowRequest', {
       credentials: 'include',
       method: 'POST',
       body: JSON.stringify({ id: data.from.id }),

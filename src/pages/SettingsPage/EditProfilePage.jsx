@@ -117,7 +117,7 @@ export default function EditProfilePage() {
 
 export async function action({ request }) {
   const fd = await request.formData();
-  const response = await authFetch('http://localhost:4000/user/updateUserInfo', {
+  const response = await authFetch('http://localhost:3000/floxly/user/updateUserInfo', {
     credentials: 'include',
     method: 'POST',
     body: fd,

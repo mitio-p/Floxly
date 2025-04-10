@@ -12,7 +12,9 @@ export default function HomePage() {
 }
 
 export async function loader() {
-  const response = await authFetch('http://localhost:4000/user/fetch/recommended-posts', { credentials: 'include' });
+  const response = await authFetch('http://localhost:3000/floxly/user/fetch/recommended-posts', {
+    credentials: 'include',
+  });
 
   if (response.ok) {
     return response;

@@ -20,7 +20,7 @@ export default function Post({ data }) {
   const navigate = useNavigate();
 
   async function handleLike() {
-    const response = await authFetch(`http://localhost:4000/photo/like/${data._id}`, {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/like/${data._id}`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -42,7 +42,7 @@ export default function Post({ data }) {
   }
 
   async function handleDislike() {
-    const response = await authFetch(`http://localhost:4000/photo/dislike/${data._id}`, {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/dislike/${data._id}`, {
       method: 'POST',
       credentials: 'include',
     });

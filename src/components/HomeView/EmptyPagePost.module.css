@@ -1,0 +1,32 @@
+.postContainer {
+  width: 400px;
+  height: 600px;
+  background-color: rgb(14, 14, 14);
+  border-radius: 4px;
+  border-top: solid 1px var(--border-color);
+  border-bottom: solid 1px var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.postContainer h1 {
+  color: var(--foreground-color);
+  margin-left: 10px;
+  margin-right: 10px;
+  font-family: 'Roboto';
+  text-align: center;
+}
+
+.postContainer h2 {
+  color: var(--foreground-color);
+  margin-left: 10px;
+  margin-right: 10px;
+  font-family: 'Roboto';
+  text-align: center;
+}
+
+.postContainer img {
+  width: 200px;
+}

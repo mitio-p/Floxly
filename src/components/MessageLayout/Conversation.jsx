@@ -58,7 +58,7 @@ export default function Conversation() {
 
     socket.emit('send-message', { ...newMessage, room: loaderData.id });
 
-    const response = await authFetch(`http://localhost:5000/send-message/${loaderData.id}`, {
+    const response = await authFetch(`http://localhost:3000/send-message/${loaderData.id}`, {
       method: 'POST',
       body: JSON.stringify(newMessage),
       headers: { 'Content-Type': 'application/json' },
@@ -199,7 +199,7 @@ export default function Conversation() {
 
 export async function loader({ params }) {
   console.log('askhjd');
-  const response = await authFetch('http://localhost:5000/conversation', {
+  const response = await authFetch('http://localhost:3000/conversation', {
     credentials: 'include',
     method: 'POST',
     body: JSON.stringify({ convId: params.convId }),

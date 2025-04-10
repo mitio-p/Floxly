@@ -15,7 +15,7 @@ export default function SearchPage() {
 
   async function handleSearch(search) {
     if (search.length > 2) {
-      const response = await fetch(`http://localhost:4000/users/search/${search}`);
+      const response = await fetch(`http://localhost:3000/floxly/users/search/${search}`);
       if (response.ok) {
         setSearchResult(await response.json());
       }
@@ -29,17 +29,10 @@ export default function SearchPage() {
   }
 
   async function handleSelectUser(id) {
-    const response = await authFetch('http://localhost:4000/users/addSearch', {
+    const response = await authFetch('http://localhost:3000/floxly/users/addSearch', {
       method: 'POST',
       body: id,
       credentials: 'include',
-    });
-    userData.setUser((prev) => {
-      const updatedUser = { ...prev };
-      const newSearchHistory = prev.searchHistory;
-      newSearchHistory.push(id);
-      updatedUser.searchHistory = newSearchHistory;
-      return updatedUser;
     });
   }
 
