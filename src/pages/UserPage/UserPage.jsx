@@ -26,6 +26,7 @@ export default function UserPage() {
   const [followers, setFollowers] = useState(loaderData.user.followers.length);
   const [pictureDialog, setPictureDialog] = useState(false);
   const [confirmDialogText, setConfirmDialogText] = useState('');
+  const [isDeactivated, setDeactivated] = useState(loaderData.user.isDeactivated);
 
   const socket = useContext(SocketCTX);
 
@@ -111,7 +112,21 @@ export default function UserPage() {
     });
 
     if (response.ok) {
+      setDeactivated(true);
       setConfirmDialogText('');
+    }
+  }
+
+  async function handleActivateAccount() {
+    const response = await authFetch('http://localhost:3000/floxly/user/activate', {
+      method: 'POST',
+      body: JSON.stringify({ id: loaderData.user.uid }),
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      setDeactivated(false);
     }
   }
 
@@ -164,6 +179,7 @@ export default function UserPage() {
                 <button
                   className={classes.userButtons}
                   onClick={isFollowing ? handleUnfollow : isRequested ? handleCancelRequest : handleFollow}
+                  disabled={isDeactivated}
                 >
                   {isFollowing
                     ? getLocale('unfollow')
@@ -172,20 +188,26 @@ export default function UserPage() {
                     : getLocale('follow')}
                 </button>
                 {(!loaderData.user.privateAccount || isFollowing) && (
-                  <button className={classes.userButtons} onClick={handleCreateConversation}>
+                  <button className={classes.userButtons} onClick={handleCreateConversation} disabled={isDeactivated}>
                     {getLocale('message')}
                   </button>
                 )}
-                {userData.user.role === 'admin' && userData.user.uid !== loaderData.user.uid && (
-                  <button
-                    className={classes.deactivateButton}
-                    onClick={() => {
-                      setConfirmDialogText('Are you sure you wanmt to deactivate this account ?');
-                    }}
-                  >
-                    Deactivate account
-                  </button>
-                )}
+                {userData.user.role === 'admin' &&
+                  userData.user.uid !== loaderData.user.uid &&
+                  (isDeactivated ? (
+                    <button className={classes.activateButton} onClick={handleActivateAccount}>
+                      Activate account
+                    </button>
+                  ) : (
+                    <button
+                      className={classes.deactivateButton}
+                      onClick={() => {
+                        setConfirmDialogText('Are you sure you want to deactivate this account ?');
+                      }}
+                    >
+                      Deactivate account
+                    </button>
+                  ))}
               </>
             )}
             {!isCurrentUser && (
@@ -222,6 +244,7 @@ export default function UserPage() {
         </div>
       </div>
       <div className={classes.dividerContainer}>
+        {isDeactivated && <p className={classes.deactivatedAccountText}>This account is deactivated!</p>}
         <div className={classes.divider}></div>
         <div className={classes.buttonBar}>
           <div className={classes.buttonContainer}>

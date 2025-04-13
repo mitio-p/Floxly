@@ -1,0 +1,102 @@
+.suggestContainer {
+  flex: 1;
+  border-left: solid 1px var(--border-color);
+}
+
+.suggestContainer h1 {
+  margin-left: 10px;
+  color: var(--foreground-color);
+  font-family: 'Montserrat';
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.suggestionsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.suggestResult {
+  display: flex;
+  height: 50px;
+  align-items: center;
+  width: 90%;
+  position: relative;
+  transition: all 0.15s;
+  padding: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.suggestResult:hover {
+  background-color: rgba(128, 128, 128, 0.368);
+}
+
+.suggestResult img {
+  height: 90%;
+  border-radius: 50px;
+  margin-right: 10px;
+}
+
+.followButton {
+  height: 28px;
+  background-color: var(--foreground-color);
+  border: solid 1px var(--foreground-color);
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+  z-index: 9;
+}
+
+.followButton:hover {
+  background: none;
+  color: var(--foreground-color);
+  border: solid 1px var(--foreground-color);
+}
+
+.followingButton {
+  height: 28px;
+  color: var(--foreground-color);
+  background: none;
+  border: solid 1px var(--foreground-color);
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+  z-index: 9;
+}
+
+.followingButton:hover {
+  color: black;
+  background: var(--foreground-color);
+  border: solid 1px var(--foreground-color);
+}
+
+.suggestInfo h2 {
+  color: var(--foreground-color);
+  margin: 0;
+  font-size: 20px;
+  font-family: 'Rubik';
+  font-weight: 400;
+}
+
+.suggestInfo h3 {
+  color: var(--foreground-color);
+  margin: 0;
+  font-size: 15px;
+  font-family: 'Rubik';
+  font-weight: 400;
+}
+
+.suggestContainer button {
+  position: absolute;
+  right: 5px;
+}

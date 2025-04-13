@@ -16,6 +16,7 @@ import Input from '../CustomInput/Input';
 import rightArrowIcon from '../../assets/icons/arrowRight.svg';
 import closeIcon from '../../assets/icons/close.svg';
 import Comment from '../Comment/Comment';
+import ConfirmDialog from '../Dialogs/ConfirmDialog';
 
 export default function PhotoViewer({ user, picId }) {
   const [photo, setPhoto] = useState();
@@ -31,6 +32,10 @@ export default function PhotoViewer({ user, picId }) {
   const isLiked = likersId && likersId.includes(userData.user.uid);
 
   const [commentInput, setCommentInput] = useState('');
+
+  const [isDeactivated, setDeactivated] = useState(false);
+
+  const [confirmDialogText, setConfirmDialogText] = useState('');
 
   console.log(comments);
 
@@ -108,6 +113,33 @@ export default function PhotoViewer({ user, picId }) {
     }
   }
 
+  async function handleDeactivatePhoto() {
+    const response = await authFetch('http://localhost:3000/floxly/photo/deactivate', {
+      method: 'POST',
+      body: JSON.stringify({ id: photo._id }),
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      setDeactivated(true);
+      setConfirmDialogText('');
+    }
+  }
+
+  async function handleActivatePhoto() {
+    const response = await authFetch('http://localhost:3000/floxly/photo/activate', {
+      method: 'POST',
+      body: JSON.stringify({ id: photo._id }),
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (response.ok) {
+      setDeactivated(false);
+    }
+  }
+
   useEffect(() => {
     handleFetchPhoto();
   }, []);
@@ -115,10 +147,21 @@ export default function PhotoViewer({ user, picId }) {
   useEffect(() => {
     setLikersId(photo?.likersId || null);
     setComments(photo?.comments || []);
+    setDeactivated(photo?.isDeactivated || false);
   }, [photo]);
 
   return (
     <div className={classes.viewerContainer}>
+      {confirmDialogText.length > 0 && (
+        <ConfirmDialog
+          isDangerous={true}
+          text={confirmDialogText}
+          onCancel={() => {
+            setConfirmDialogText('');
+          }}
+          onConfirm={handleDeactivatePhoto}
+        />
+      )}
       <div className={classes.close} onClick={handleClose}>
         <img src={closeIcon} alt="" />
       </div>
@@ -142,6 +185,22 @@ export default function PhotoViewer({ user, picId }) {
               {photo?.location && <h3>{photo?.location}</h3>}
             </div>
             {photo?.isBestFriendsOnly && <img className={classes.bestFriendsOnlyBadge} src={starIcon} alt="" />}
+
+            {userData.user.role === 'admin' &&
+              (isDeactivated ? (
+                <button className={classes.activateButton} onClick={handleActivatePhoto}>
+                  Activate photo
+                </button>
+              ) : (
+                <button
+                  className={classes.deactivateButton}
+                  onClick={() => {
+                    setConfirmDialogText('Are you sure you want to deactivate this photo ?');
+                  }}
+                >
+                  Deactivate photo
+                </button>
+              ))}
           </div>
           <div className={classes.commentSection}>
             {comments.length < 1 ? (

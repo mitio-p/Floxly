@@ -18,6 +18,8 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+app.use(express.text());
+
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 app.use('/floxly', User);
@@ -28,13 +30,16 @@ const server = http.createServer(app);
 
 const io = new Server(server, { cors: { origin: 'http://localhost:5173', credentials: true } });
 
+// Connecting to the database
 mongoose
   .connect(process.env.DATABASE_CONNECTION_STRING, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => {
-    server.listen(3000);
+    server.listen(3000, () => {
+      console.log('Server running...');
+    });
   })
   .catch((err) => {
     console.error(err);

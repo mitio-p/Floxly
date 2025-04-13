@@ -91,6 +91,9 @@
   padding-left: 5px;
   padding-right: 5px;
   overflow-y: auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 .reactStat {
@@ -227,4 +230,40 @@
   to {
     background-color: rgba(0, 0, 0, 0.484);
   }
+}
+
+.deactivateButton {
+  height: 28px;
+  background: none;
+  border: solid 1px #c14343;
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+  color: #c14343;
+}
+
+.deactivateButton:hover {
+  background-color: #c14343;
+  color: black;
+}
+
+.activateButton {
+  height: 28px;
+  background: none;
+  border: solid 1px #5b5fc2;
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+  color: #5b5fc2;
+}
+
+.activateButton:hover {
+  background-color: #5b5fc2;
+  color: black;
 }

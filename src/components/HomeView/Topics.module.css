@@ -9,6 +9,18 @@
   justify-content: center;
   padding-top: 45px;
   padding-bottom: 45px;
+  margin-bottom: 30px;
+}
+
+.topic {
+  width: 350px;
+  min-height: 150px;
+  border-radius: 10px;
+  border: solid 1px var(--foreground-color);
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .userInfo {
@@ -85,4 +97,20 @@
   position: absolute;
   top: 25px;
   z-index: 2;
+}
+
+.topicContent p {
+  color: var(--foreground-color);
+  font-family: 'Roboto';
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  padding-right: 7px;
+}
+
+.topicContent {
+  margin-left: 10px;
+  margin-top: 35px;
 }

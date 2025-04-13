@@ -18,12 +18,14 @@ const formatNumber = require('../Utils/formatNumber.js');
 const sendSMS = require('../Utils/smsSender.js');
 
 router.post('/signUp', signUpMiddleware, async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.user.password, 10);
+  //Hashing inputed password
+  const hashedPassword = await bcrypt.hash(req.user.password.trim(), 10);
+  //creating user record on the database
   UsersSchema.create({
-    username: req.user.username,
-    fullName: req.user.fullname,
+    username: req.user.username.trim(),
+    fullName: req.user.fullname.trim(),
     password: hashedPassword,
-    email: req.user.email,
+    email: req.user.email.trim(),
     profilePicture: 'https://floxly-bucket.s3.eu-north-1.amazonaws.com/profilePictures/defaultProfilePicture.png',
   }).then(async (user) => {
     res.status(201).send('User created!');
@@ -35,7 +37,9 @@ router.post('/login', async (req, res) => {
   if (user.email && user.password) {
     const fetchedUser = await UsersSchema.findOne({ email: user.email });
     if (fetchedUser) {
+      //Hashing and comparing inputed password to potential user's hashed password
       if (await bcrypt.compare(user.password, fetchedUser.password)) {
+        //creating expire date for ref and accsess tokens cookies
         const refTokenExpDate = new Date();
         refTokenExpDate.setDate(refTokenExpDate.getDate() + serverConfig.refTokenLifetime);
 
@@ -49,6 +53,7 @@ router.post('/login', async (req, res) => {
           },
           process.env.ACCESS_TOKEN_SECRET
         );
+        //setting cookies containing tokens
         res.cookie('accesstoken', accessToken, {
           sameSite: 'strict',
           httpOnly: true,
@@ -86,6 +91,7 @@ router.get('/user', gatherUserInfo, async (req, res) => {
   const updatedConversations = [];
   const searchHistory = [];
 
+  //Preparing user's conversations
   for (const conversation of conversations) {
     if (conversation.lastSentMessage) {
       updatedConversations.push({
@@ -100,18 +106,49 @@ router.get('/user', gatherUserInfo, async (req, res) => {
     }
   }
 
+  //Preparing searched results
   for (const search of foundUser.searchHistory) {
     const searchedUser = await UsersSchema.findById(search).select('profilePicture username fullName');
 
     searchHistory.push(searchedUser);
   }
 
+  //Sorting the conversations by last sent message date
   updatedConversations.sort((a, b) => {
     const dateA = a.lastMessage?.dateSent || a.dateCreated.getTime();
     console.log(dateA);
     const dateB = b.lastMessage?.dateSent || b.dateCreated.getTime();
     return dateB - dateA;
   });
+
+  let suggestedAccounts = await UsersSchema.aggregate([
+    {
+      $match: {
+        followers: { $not: { $elemMatch: { $eq: req.user._id.toString() } } },
+        privateAccount: false,
+      },
+    },
+    {
+      $addFields: {
+        followersCount: { $size: '$followers' },
+      },
+    },
+    {
+      $sort: { followersCount: -1 },
+    },
+    {
+      $limit: 10,
+    },
+    {
+      $project: {
+        username: 1,
+        fullName: 1,
+        profilePicture: 1,
+      },
+    },
+  ]);
+
+  suggestedAccounts = suggestedAccounts.filter((account) => account._id.toString() !== req.user._id.toString());
 
   if (foundUser) {
     res.status(200).json({
@@ -128,7 +165,8 @@ router.get('/user', gatherUserInfo, async (req, res) => {
       privateAccount: foundUser.privateAccount,
       conversations: updatedConversations,
       bestFriends: foundUser.bestFriends,
-      searchHistory,
+      searchHistory: searchHistory.reverse(),
+      suggestedAccounts,
       role: foundUser.role,
     });
   } else {
@@ -138,6 +176,8 @@ router.get('/user', gatherUserInfo, async (req, res) => {
 
 router.get('/logout', async (req, res) => {
   const reftoken = req.cookies['reftoken'];
+
+  //Removing ref and access token cookies
 
   if (reftoken) {
     res.clearCookie('reftoken', {

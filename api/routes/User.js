@@ -23,6 +23,7 @@ const s3 = new AWS.S3();
 const awsRegion = 'eu-north-1';
 
 router.get('/user/:username', gatherUserInfo, async (req, res) => {
+  //fetching certain user info
   const fetchedUser = await UserSchema.findOne({
     username: req.params.username,
   });
@@ -40,6 +41,10 @@ router.get('/user/:username', gatherUserInfo, async (req, res) => {
   }
 
   userGallery.sort((photoA, photoB) => photoB.uploadedAt - photoA.uploadedAt);
+
+  if (req.user.role !== 'admin') {
+    userGallery = userGallery.filter((photo) => !photo.isDeactivated);
+  }
 
   if (fetchedUser) {
     const publicUserInfo = {
@@ -159,6 +164,7 @@ router.post('/user/uploadImageToGallery', upload.single('photoFile'), gatherUser
     Body: req.file.buffer,
   };
 
+  //Uploading the photo to the AWS servers
   s3.putObject(params)
     .promise()
     .then(async () => {
@@ -213,6 +219,7 @@ router.post('/user/updateUserInfo', upload.single('photo'), gatherUserInfo, asyn
         });
       }
     }
+    //Saving only the changed fields
     Object.keys(formData).forEach(async (key) => {
       formData[key] ? (fetchedUser[key] = formData[key]) : null;
     });
@@ -231,6 +238,7 @@ router.get('/users/best_friends', gatherUserInfo, async (req, res) => {
   const userBestFriendIds = req.user.bestFriends;
   let bestFriendsList = [];
 
+  //Converting user Ids to user infos
   for (const bestFriendId of userBestFriendIds) {
     bestFriendsList.push(await UserSchema.findById(bestFriendId).select('profilePicture username fullName'));
   }
@@ -265,20 +273,28 @@ router.get('/users/search/:query', async (req, res) => {
 
 router.post('/users/addSearch', gatherUserInfo, async (req, res) => {
   if (!req.body) return res.sendStatus(400);
+  console.log(req.body);
 
   try {
     const searchedUser = await UserSchema.findById(req.body).select('profilePicture username fullName');
 
     if (!searchedUser) return res.sendStatus(404);
 
-    const user = await UserSchema.findById(req.user._id.toString());
+    const user = await UserSchema.findById(req.user._id);
 
-    user.searchHistory.push(req.body);
+    if (!user.searchHistory.includes(req.body)) {
+      user.searchHistory.push(req.body);
+    } else {
+      const searchIndex = user.searchHistory.indexOf(req.body);
+      user.searchHistory.splice(searchIndex, 1);
+      user.searchHistory.push(req.body);
+    }
 
     user.save();
 
     res.json(searchedUser);
-  } catch {
+  } catch (err) {
+    console.log(err);
     res.sendStatus(500);
   }
 });
@@ -411,6 +427,7 @@ router.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
 
     const updatedComments = [];
 
+    //Converting author id to author data
     for (let comment of photo.comments) {
       const author = await UserSchema.findById(comment.author).select('profilePicture username');
       comment.author = author;
@@ -419,6 +436,7 @@ router.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
 
     if (photo.isLikesCountHidden && photo.author !== req.user._id.toString()) photo.likersId = null;
 
+    //sorting comments by likes
     updatedComments.sort((a, b) => b.likers.length - a.likers.length);
 
     photo.comments = updatedComments;
@@ -609,15 +627,35 @@ router.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => 
 });
 
 router.post('/user/upload-topic', gatherUserInfo, (req, res) => {
-  const text = req.body;
+  const text = req.body.text;
 
-  if (text.length < 1 || text.length > 1000) return res.sendStatus(400);
+  if (!text) return res.sendStatus(400);
+
+  if (text.length < 1 || text.length > 500) return res.sendStatus(400);
 
   TopicsSchema.create({
     text,
     author: req.user._id,
   });
   res.sendStatus(200);
+});
+
+router.get('/user/fetch/topics', gatherUserInfo, async (req, res) => {
+  const topics = await TopicsSchema.find({});
+  let updatedTopics = [];
+
+  for (let topic of topics) {
+    const updatedTopic = topic.toObject();
+    console.log(updatedTopic);
+    const author = await UserSchema.findById(updatedTopic.author).select('username profilePicture');
+    updatedTopic.author = {
+      username: author.username,
+      profilePicture: author.profilePicture,
+    };
+    updatedTopics.push(updatedTopic);
+  }
+
+  res.json(updatedTopics);
 });
 
 router.post('/user/deactivate', gatherUserInfo, async (req, res) => {
@@ -634,6 +672,50 @@ router.post('/user/deactivate', gatherUserInfo, async (req, res) => {
   userForDeactivation.isDeactivated = true;
 
   userForDeactivation.save();
+
+  res.sendStatus(200);
+});
+
+router.post('/user/activate', gatherUserInfo, async (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(401);
+
+  if (!req.body.id) return res.sendStatus(400);
+
+  const userForActivation = await UserSchema.findById(req.body.id);
+
+  if (!userForActivation) return res.sendStatus(404);
+
+  userForActivation.isDeactivated = false;
+
+  userForActivation.save();
+
+  res.sendStatus(200);
+});
+
+router.post('/photo/deactivate', gatherUserInfo, async (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(401);
+
+  const photoForDeactivation = await GalleryPhotosSchema.findById(req.body.id);
+
+  if (!photoForDeactivation) return res.sendStatus(404);
+
+  photoForDeactivation.isDeactivated = true;
+
+  photoForDeactivation.save();
+
+  res.sendStatus(200);
+});
+
+router.post('/photo/activate', gatherUserInfo, async (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(401);
+
+  const photoForActivation = await GalleryPhotosSchema.findById(req.body.id);
+
+  if (!photoForActivation) return res.sendStatus(404);
+
+  photoForActivation.isDeactivated = false;
+
+  photoForActivation.save();
 
   res.sendStatus(200);
 });

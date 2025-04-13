@@ -196,3 +196,29 @@
   background-color: #c14343;
   color: black;
 }
+
+.activateButton {
+  height: 28px;
+  background: none;
+  border: solid 1px #5b5fc2;
+  border-radius: 4px;
+  font-family: 'Ubuntu';
+  font-size: 15px;
+  font-weight: 400;
+  transition: all 0.15s;
+  cursor: pointer;
+  color: #5b5fc2;
+}
+
+.activateButton:hover {
+  background-color: #5b5fc2;
+  color: black;
+}
+
+.deactivatedAccountText {
+  color: #c14343;
+  margin: 0;
+  font-family: 'Roboto';
+  margin-bottom: 10px;
+  font-size: 20px;
+}

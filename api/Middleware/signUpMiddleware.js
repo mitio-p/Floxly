@@ -1,4 +1,4 @@
-const UsersSchema = require("../DataSchemas/Users");
+const UsersSchema = require('../DataSchemas/Users');
 
 const signUpMiddleware = async (req, res, next) => {
   const user = req.body;
@@ -12,29 +12,29 @@ const signUpMiddleware = async (req, res, next) => {
           } else {
             res.status(400).json({
               errors: {
-                password: "Password is too short!",
+                password: 'Password is too short!',
               },
             });
           }
         } else {
           res.status(409).json({
             errors: {
-              username: "This username is already taken!",
+              username: 'This username is already taken!',
             },
           });
         }
       } else {
         res.status(409).json({
           errors: {
-            email: "This email is already used!",
+            email: 'This email is already used!',
           },
         });
       }
     } else {
-      res.status(400).send("Invalid data");
+      res.status(400).send('Invalid data');
     }
   } else {
-    res.status(400).send("Invalid data");
+    res.status(400).send('Invalid data');
   }
 };
 
