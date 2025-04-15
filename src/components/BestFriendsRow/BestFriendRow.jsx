@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import classes from './BestFriendRow.module.css';
 import authFetch from '../../Utils/authFetch';
+import { getLocale } from '../../Utils/localization';
 
 export default function BestFriendRow({ data, isBestFriends }) {
   const [bestFriends, setBestFriends] = useState(isBestFriends);
@@ -38,11 +39,11 @@ export default function BestFriendRow({ data, isBestFriends }) {
       </div>
       {bestFriends ? (
         <button className={classes.removeFromList} onClick={handleRemoveBestFriend}>
-          Remove from the list
+          {getLocale('remove_from_list')}
         </button>
       ) : (
         <button className={classes.addToList} onClick={handleAddBestFriend}>
-          Add to the list
+          {getLocale('add_to_list')}
         </button>
       )}
     </div>

@@ -5,6 +5,7 @@ import { useLoaderData, useSearchParams } from 'react-router-dom';
 import Post from './Post';
 import Topics from './Topics';
 import EmptyPagePost from './EmptyPagePost';
+import { getLocale } from '../../Utils/localization';
 
 export default function HomeView() {
   const loaderData = useLoaderData();
@@ -28,11 +29,11 @@ export default function HomeView() {
     <div className={classes.homeViewContainer}>
       <div className={classes.variantSwitcher}>
         <div onClick={togglePosts}>
-          <p>Posts</p>
+          <p>{getLocale('posts')}</p>
           {searchParams.get('variant') !== 'topics' && <div className={classes.indicator}></div>}
         </div>
         <div onClick={toggleTopics}>
-          <p>Topics</p>
+          <p>{getLocale('topics')}</p>
           {searchParams.get('variant') === 'topics' && <div className={classes.indicator}></div>}
         </div>
       </div>

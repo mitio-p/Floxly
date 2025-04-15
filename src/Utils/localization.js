@@ -34,6 +34,13 @@ const en = {
   account_is_private: 'This account is private',
   private_account_description: "After the user accept your follow request you'll be able to see the gallery!",
   typing: 'Typing...',
+  topics: 'Topics',
+  posts: 'Posts',
+  no_comments_yet: 'No comments yet!',
+  be_first_to_comment: 'Be the first who will write a comment!',
+  remove_from_list: 'Remove from the list',
+  add_to_list: 'Add to the list',
+  suggested: 'Suggested',
 };
 const bg = {
   home: 'Начало',
@@ -71,6 +78,13 @@ const bg = {
   account_is_private: 'Акаунта е скрит',
   private_account_description: 'След като потребителя потвърди заявката ви за следване галерията ще е видима!',
   typing: 'Писане...',
+  topics: 'Теми',
+  posts: 'Публикации',
+  no_comments_yet: 'Няма още коментари!',
+  be_first_to_comment: 'Бъди първият написал коментар!',
+  remove_from_list: 'Премахни от списъка',
+  add_to_list: 'Добави в списъка',
+  suggested: 'Предложения',
 };
 
 export function getLocale(key) {

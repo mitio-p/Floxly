@@ -267,3 +267,17 @@
   background-color: #5b5fc2;
   color: black;
 }
+
+.delete {
+  width: 22px;
+  position: absolute;
+  right: 15px;
+  padding: 5px;
+  transition: all 0.15s;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete:hover {
+  background-color: #c143435a;
+}

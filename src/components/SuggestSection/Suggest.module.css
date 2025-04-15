@@ -37,6 +37,7 @@
 
 .suggestResult img {
   height: 90%;
+  aspect-ratio: 1/1;
   border-radius: 50px;
   margin-right: 10px;
 }

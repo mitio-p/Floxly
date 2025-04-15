@@ -565,6 +565,17 @@ router.post('/photo/:photoId/comment/like', gatherUserInfo, async (req, res) => 
   res.sendStatus(200);
 });
 
+router.delete('/photo/:photoId/delete', gatherUserInfo, async (req, res) => {
+  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+
+  if (!photo) return res.sendStatus(404);
+  if (photo.author.toString() !== req.user._id.toString()) return res.sendStatus(400);
+
+  await photo.deleteOne();
+
+  res.sendStatus(200);
+});
+
 router.post('/photo/:photoId/comment/cancelLike', gatherUserInfo, async (req, res) => {
   if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
 

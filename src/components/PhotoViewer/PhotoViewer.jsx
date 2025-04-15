@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import classes from './PhotoViewer.module.css';
 import { useContext, useEffect, useState } from 'react';
 import authFetch from '../../Utils/authFetch';
@@ -18,6 +18,9 @@ import closeIcon from '../../assets/icons/close.svg';
 import Comment from '../Comment/Comment';
 import ConfirmDialog from '../Dialogs/ConfirmDialog';
 
+import DeleteIcon from '../../assets/icons/delete.png';
+import { getLocale } from '../../Utils/localization';
+
 export default function PhotoViewer({ user, picId }) {
   const [photo, setPhoto] = useState();
   const [error, setError] = useState(false);
@@ -35,9 +38,10 @@ export default function PhotoViewer({ user, picId }) {
 
   const [isDeactivated, setDeactivated] = useState(false);
 
-  const [confirmDialogText, setConfirmDialogText] = useState('');
+  const [confirmDialogText, setConfirmDialogText] = useState({ text: '', action: () => {} });
 
-  console.log(comments);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   async function handleFetchPhoto() {
     const response = await authFetch(`http://localhost:3000/floxly/photo/${picId}`, {
@@ -140,6 +144,17 @@ export default function PhotoViewer({ user, picId }) {
     }
   }
 
+  async function handleDeletePhoto() {
+    const response = await authFetch(`http://localhost:3000/floxly/photo/${photo?._id}/delete`, {
+      credentials: 'include',
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      navigate(location.pathname, { replace: true });
+    }
+  }
+
   useEffect(() => {
     handleFetchPhoto();
   }, []);
@@ -152,14 +167,14 @@ export default function PhotoViewer({ user, picId }) {
 
   return (
     <div className={classes.viewerContainer}>
-      {confirmDialogText.length > 0 && (
+      {confirmDialogText.text.length > 0 && (
         <ConfirmDialog
           isDangerous={true}
-          text={confirmDialogText}
+          text={confirmDialogText.text}
           onCancel={() => {
             setConfirmDialogText('');
           }}
-          onConfirm={handleDeactivatePhoto}
+          onConfirm={confirmDialogText.action}
         />
       )}
       <div className={classes.close} onClick={handleClose}>
@@ -201,12 +216,24 @@ export default function PhotoViewer({ user, picId }) {
                   Deactivate photo
                 </button>
               ))}
+            {userData.user.uid === photo?.author && (
+              <img
+                src={DeleteIcon}
+                className={classes.delete}
+                onClick={() => {
+                  setConfirmDialogText({
+                    text: 'Are you sure you want to delete this photo?',
+                    action: handleDeletePhoto,
+                  });
+                }}
+              />
+            )}
           </div>
           <div className={classes.commentSection}>
             {comments.length < 1 ? (
               <div className={classes.noCommentContainer}>
-                <h1>No comments yet!</h1>
-                <h2>Be the first who will write a comment!</h2>
+                <h1>{getLocale('no_comments_yet')}</h1>
+                <h2>{getLocale('be_first_to_comment')}</h2>
               </div>
             ) : (
               comments.map((commentData) => <Comment key={commentData.dateSent} data={commentData} picId={picId} />)

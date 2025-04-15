@@ -4,6 +4,7 @@ import BestFriendRow from '../../components/BestFriendsRow/BestFriendRow';
 import { useLoaderData } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import UserCTX from '../../Context/UserCTX';
+import { getLocale } from '../../Utils/localization';
 
 export default function BestFriendsPage() {
   const loaderData = useLoaderData();
@@ -24,12 +25,12 @@ export default function BestFriendsPage() {
   return (
     <main className={classes.globalContainer}>
       <div className={classes.listContainer}>
-        <h1>Best friends</h1>
+        <h1>{getLocale('best_friends')}</h1>
         <div className={classes.list}>
           <div className={classes.inputContainer}>
             <input
               type="text"
-              placeholder="Search"
+              placeholder={getLocale('search')}
               onChange={(event) => {
                 handleSearch(event.target.value);
               }}
