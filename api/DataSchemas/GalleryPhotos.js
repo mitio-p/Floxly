@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const galleryPhotosSchema = new mongoose.Schema({
   author: { type: mongoose.Types.ObjectId, required: true },
@@ -11,8 +11,8 @@ const galleryPhotosSchema = new mongoose.Schema({
   isBestFriendsOnly: { type: Boolean, required: true },
   isLikesCountHidden: { type: Boolean, required: true },
   isCommentsOff: { type: Boolean, required: true },
-  uploadedAt: { type: Number, default: Date.now(), immutable: true },
+  uploadedAt: { type: Number, default: () => Date.now(), immutable: true },
   isDeactivated: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model('galleyPhotos', galleryPhotosSchema);
+module.exports = mongoose.model("galleyPhotos", galleryPhotosSchema);

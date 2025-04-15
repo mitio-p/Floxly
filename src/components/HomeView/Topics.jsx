@@ -1,21 +1,23 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import classes from './Topics.module.css';
-import UserCTX from '../../Context/UserCTX';
-import emojyIcon from '../../assets/icons/emoji.svg';
-import EmojiPicker from 'emoji-picker-react';
-import authFetch from '../../Utils/authFetch';
+import { useContext, useEffect, useRef, useState } from "react";
+import classes from "./Topics.module.css";
+import UserCTX from "../../Context/UserCTX";
+import emojyIcon from "../../assets/icons/emoji.svg";
+import EmojiPicker from "emoji-picker-react";
+import authFetch from "../../Utils/authFetch";
+import FullHeartIcon from "../../assets/icons/heart-full.svg";
+import EmptyHeartIcon from "../../assets/icons/heart-empty.svg";
 
 export default function Topics() {
   const userData = useContext(UserCTX);
   const textAreaRef = useRef();
   const [isEmojiMenuShown, setEmojiMenuShown] = useState(false);
-  const [topicInput, setTopicInput] = useState('');
+  const [topicInput, setTopicInput] = useState("");
   const [topics, setTopics] = useState([]);
 
   function handleInput(event) {
     const textarea = textAreaRef.current;
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
     setTopicInput(event.target.value);
   }
 
@@ -24,30 +26,39 @@ export default function Topics() {
   }
 
   async function handlePostTopic() {
-    const response = await authFetch('http://localhost:3000/floxly/user/upload-topic', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ text: topicInput.trim() }),
-    });
+    const response = await authFetch(
+      "http://localhost:3000/floxly/user/upload-topic",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ text: topicInput.trim() }),
+      }
+    );
 
     if (response.ok) {
-      setTopicInput('');
-      textAreaRef.current.style.height = '18px';
+      setTopicInput("");
+      textAreaRef.current.style.height = "18px";
       setTopics((prev) => [
-        ...prev,
         {
-          author: { username: userData.user.username, profilePicture: userData.user.profilePicture },
+          author: {
+            username: userData.user.username,
+            profilePicture: userData.user.profilePicture,
+          },
           text: topicInput,
         },
+        ...prev,
       ]);
     }
   }
 
   async function handleFetchTopics() {
-    const response = await authFetch('http://localhost:3000/floxly/user/fetch/topics', { credentials: 'include' });
+    const response = await authFetch(
+      "http://localhost:3000/floxly/user/fetch/topics",
+      { credentials: "include" }
+    );
 
     if (response.ok) {
       setTopics(await response.json());
@@ -62,7 +73,11 @@ export default function Topics() {
     <div className={classes.topics}>
       <div className={classes.createTopic}>
         <div className={classes.userInfo}>
-          <img src={userData.user.profilePicture} alt="" />
+          <img
+            src={userData.user.profilePicture}
+            alt=""
+            className={classes.profilePicture}
+          />
           <p>{userData.user.username}</p>
         </div>
         <div className={classes.topicInput}>
@@ -98,7 +113,11 @@ export default function Topics() {
         </div>
         <button
           className={classes.post}
-          style={topicInput.length < 1 ? { color: 'grey', cursor: 'default' } : undefined}
+          style={
+            topicInput.length < 1
+              ? { color: "grey", cursor: "default" }
+              : undefined
+          }
           disabled={topicInput.length < 1}
           onClick={handlePostTopic}
         >
@@ -106,13 +125,28 @@ export default function Topics() {
         </button>
       </div>
       {topics.map((topic) => (
-        <div className={classes.topic}>
+        <div className={classes.topic} key={topic._id}>
           <div className={classes.userInfo}>
-            <img src={topic.author.profilePicture} alt="" />
+            <img
+              src={topic.author.profilePicture}
+              alt=""
+              className={classes.profilePicture}
+            />
             <p>{topic.author.username}</p>
           </div>
           <div className={classes.topicContent}>
             <p>{topic.text}</p>
+          </div>
+          <div className={classes.topicActions}>
+            <p>{topic.likers.length}</p>
+            <img
+              src={
+                topic.likers.includes(userData.user._id)
+                  ? FullHeartIcon
+                  : EmptyHeartIcon
+              }
+              alt=""
+            />
           </div>
         </div>
       ))}
