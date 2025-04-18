@@ -4,7 +4,6 @@ import UserCTX from '../../Context/UserCTX';
 import emojyIcon from '../../assets/icons/emoji.svg';
 import EmojiPicker from 'emoji-picker-react';
 import authFetch from '../../Utils/authFetch';
-import Topic from './Topic';
 
 export default function Topics() {
   const userData = useContext(UserCTX);
@@ -38,11 +37,14 @@ export default function Topics() {
       setTopicInput('');
       textAreaRef.current.style.height = '18px';
       setTopics((prev) => [
-        ...prev,
         {
-          author: { username: userData.user.username, profilePicture: userData.user.profilePicture },
+          author: {
+            username: userData.user.username,
+            profilePicture: userData.user.profilePicture,
+          },
           text: topicInput,
         },
+        ...prev,
       ]);
     }
   }
@@ -63,7 +65,7 @@ export default function Topics() {
     <div className={classes.topics}>
       <div className={classes.createTopic}>
         <div className={classes.userInfo}>
-          <img src={userData.user.profilePicture} alt="" />
+          <img src={userData.user.profilePicture} alt="" className={classes.profilePicture} />
           <p>{userData.user.username}</p>
         </div>
         <div className={classes.topicInput}>
@@ -107,7 +109,15 @@ export default function Topics() {
         </button>
       </div>
       {topics.map((topic) => (
-        <Topic topic={topic} userData={userData} key={topic._id} />
+        <div className={classes.topic}>
+          <div className={classes.userInfo}>
+            <img src={topic.author.profilePicture} alt="" />
+            <p>{topic.author.username}</p>
+          </div>
+          <div className={classes.topicContent}>
+            <p>{topic.text}</p>
+          </div>
+        </div>
       ))}
     </div>
   );
