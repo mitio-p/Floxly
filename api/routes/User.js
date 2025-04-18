@@ -650,19 +650,25 @@ router.post('/user/upload-topic', gatherUserInfo, (req, res) => {
   });
   res.sendStatus(200);
 });
-
+//asdasdasdasdasdasdasdas
 router.get('/user/fetch/topics', gatherUserInfo, async (req, res) => {
   const topics = await TopicsSchema.find({});
   let updatedTopics = [];
 
   for (let topic of topics) {
     const updatedTopic = topic.toObject();
-    console.log(updatedTopic);
+    let updatedComments = [];
     const author = await UserSchema.findById(updatedTopic.author).select('username profilePicture');
     updatedTopic.author = {
       username: author.username,
       profilePicture: author.profilePicture,
     };
+    for (let comment of topic.comments) {
+      const author = await UserSchema.findById(comment.author).select('profilePicture username');
+      comment.author = author;
+      updatedComments.push(comment);
+    }
+    updatedTopic.comments = updatedComments;
     updatedTopics.push(updatedTopic);
   }
 
@@ -729,6 +735,67 @@ router.post('/photo/activate', gatherUserInfo, async (req, res) => {
   photoForActivation.save();
 
   res.sendStatus(200);
+});
+
+router.post('/topic/like/:topicId', gatherUserInfo, async (req, res) => {
+  const topic = await TopicsSchema.findById(req.params.topicId);
+
+  if (!topic) return res.sendStatus(404);
+
+  topic.likers.push(req.user._id.toString());
+
+  await topic.save();
+
+  res.sendStatus(200);
+});
+
+router.post('/topic/dislike/:topicId', gatherUserInfo, async (req, res) => {
+  const topic = await TopicsSchema.findById(req.params.topicId);
+
+  if (!topic) return res.sendStatus(404);
+
+  const likerIndex = topic.likers.indexOf(req.user._id.toString());
+  topic.likers.splice(likerIndex, 1);
+
+  await topic.save();
+
+  res.sendStatus(200);
+});
+
+router.post('/topic/comment/:topicId', gatherUserInfo, async (req, res) => {
+  if (!req.body.text) return res.sendStatus(400);
+
+  const topic = await TopicsSchema.findById(req.params.topicId);
+
+  if (!topic) return res.sendStatus(404);
+
+  let commentId = 1;
+
+  if (topic.comments.length > 0) {
+    const commentIDs = topic.comments.map((comment) => comment.id);
+    commentId = Math.max(...commentIDs) + 1;
+  }
+
+  const comment = {
+    id: commentId,
+    dateSent: Date.now(),
+    likers: [],
+    text: req.body.text,
+    isEdited: false,
+    author: req.user._id.toString(),
+  };
+
+  topic.comments.push(comment);
+
+  await topic.save();
+
+  res.json({
+    ...comment,
+    author: {
+      profilePicture: req.user.profilePicture,
+      username: req.user.username,
+    },
+  });
 });
 
 module.exports = router;
