@@ -32,6 +32,11 @@
   left: 7px;
 }
 
+.userInfo img {
+  width: 35px;
+  border-radius: 35px;
+}
+
 .profilePicture {
   width: 40px;
   aspect-ratio: 1/1;

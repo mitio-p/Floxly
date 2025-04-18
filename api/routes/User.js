@@ -650,15 +650,14 @@ router.post('/user/upload-topic', gatherUserInfo, (req, res) => {
   });
   res.sendStatus(200);
 });
-
+//asdasdasdasdasdasdasdas
 router.get('/user/fetch/topics', gatherUserInfo, async (req, res) => {
-  const topics = await TopicsSchema.find({}).sort({ createdAt: -1 });
-  console.log(topics);
+  const topics = await TopicsSchema.find({});
   let updatedTopics = [];
 
   for (let topic of topics) {
     const updatedTopic = topic.toObject();
-    console.log(updatedTopic);
+    let updatedComments = [];
     const author = await UserSchema.findById(updatedTopic.author).select('username profilePicture');
     updatedTopic.author = {
       username: author.username,

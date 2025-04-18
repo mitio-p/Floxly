@@ -4,6 +4,7 @@ import UserCTX from '../../Context/UserCTX';
 import emojyIcon from '../../assets/icons/emoji.svg';
 import EmojiPicker from 'emoji-picker-react';
 import authFetch from '../../Utils/authFetch';
+import Topic from './Topic';
 
 export default function Topics() {
   const userData = useContext(UserCTX);
@@ -109,15 +110,7 @@ export default function Topics() {
         </button>
       </div>
       {topics.map((topic) => (
-        <div className={classes.topic}>
-          <div className={classes.userInfo}>
-            <img src={topic.author.profilePicture} alt="" />
-            <p>{topic.author.username}</p>
-          </div>
-          <div className={classes.topicContent}>
-            <p>{topic.text}</p>
-          </div>
-        </div>
+        <Topic topic={topic} userData={userData} key={topic._id} />
       ))}
     </div>
   );
