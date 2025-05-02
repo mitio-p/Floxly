@@ -127,7 +127,7 @@ export default function PhotoViewer({ user, picId }) {
 
     if (response.ok) {
       setDeactivated(true);
-      setConfirmDialogText('');
+      setConfirmDialogText({ text: '', action: () => {} });
     }
   }
 
@@ -172,7 +172,7 @@ export default function PhotoViewer({ user, picId }) {
           isDangerous={true}
           text={confirmDialogText.text}
           onCancel={() => {
-            setConfirmDialogText('');
+            setConfirmDialogText({ text: '', action: () => {} });
           }}
           onConfirm={confirmDialogText.action}
         />
@@ -210,7 +210,10 @@ export default function PhotoViewer({ user, picId }) {
                 <button
                   className={classes.deactivateButton}
                   onClick={() => {
-                    setConfirmDialogText('Are you sure you want to deactivate this photo ?');
+                    setConfirmDialogText({
+                      text: 'Are you sure you want to deactivate this photo?',
+                      action: handleDeactivatePhoto,
+                    });
                   }}
                 >
                   Deactivate photo

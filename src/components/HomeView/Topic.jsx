@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import classes from './Topics.module.css';
 import emptyHeartIcon from '../../assets/icons/heart-empty.svg';
 import fullHeartIcon from '../../assets/icons/heart-full.svg';
@@ -14,8 +14,8 @@ export default function Topic({ topic, userData }) {
   const [isCommentSectionToggled, setCommentSectionToggled] = useState(false);
   const [commentInput, setCommentInput] = useState('');
   const [isEmojiMenuShown, setEmojiMenuShown] = useState(false);
-
-  console.log(comments);
+  const commentSectionRef = useRef();
+  const [commentSectionHeight, setCommentSerctionHeight] = useState(0);
 
   function handleTypeCommentInput(event) {
     setCommentInput(event.target.value);
@@ -57,12 +57,23 @@ export default function Topic({ topic, userData }) {
       body: JSON.stringify({ text: commentInput }),
     });
     if (response.ok) {
+      const postedComment = await response.json();
       setCommentInput('');
-      setComments((prev) => [response, ...prev]);
+      setComments((prev) => [postedComment, ...prev]);
     }
   }
+
+  useEffect(() => {
+    if (isCommentSectionToggled) {
+      const height = commentSectionRef.current.offsetHeight;
+      setCommentSerctionHeight(height);
+    } else {
+      setCommentSerctionHeight(0);
+    }
+  }, [isCommentSectionToggled]);
+
   return (
-    <div className={classes.topic}>
+    <div className={classes.topic} style={{ marginBottom: commentSectionHeight + 20 }}>
       {isEmojiMenuShown && (
         <div
           className={classes.emojiMenuBackground}
@@ -99,17 +110,19 @@ export default function Topic({ topic, userData }) {
         </div>
       </div>
       {isCommentSectionToggled && (
-        <div className={classes.commentSection}>
+        <div className={classes.commentSection} ref={commentSectionRef}>
           <div className={classes.commentsContainer}>
-            {comments.map((comment) => (
-              <div className={classes.commentContainer}>
-                <div className={classes.commentUserInfo}>
-                  <img src={comment.author.profilePicture} alt="" />
-                  <p>{comment.author.username}</p>
+            <div className={classes.topicCommentsContainer}>
+              {comments.map((comment) => (
+                <div key={comment.id} className={classes.comment}>
+                  <div className={classes.commentUserInfo}>
+                    <img src={comment.author.profilePicture} alt="" />
+                    <h2>{comment.author.username}</h2>
+                  </div>
+                  <p>{comment.text}</p>
                 </div>
-                <p className={classes.commentContent}>{comment.text}</p>
-              </div>
-            ))}
+              ))}
+            </div>
             <div className={classes.inputContainer}>
               <textarea
                 type="text"

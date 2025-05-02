@@ -4,6 +4,7 @@ import tokenSevice from '../../Utils/tokenService';
 import { useContext, useEffect, useRef, useState } from 'react';
 import NotificationCTX from '../../Context/NotificationCTX';
 import authFetch from '../../Utils/authFetch';
+import { getLocale } from '../../Utils/localization';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
@@ -26,13 +27,13 @@ export default function AuthPage() {
 
   switch (mode) {
     case 'login':
-      title = 'Login to your account!';
+      title = getLocale('login_to_account');
       break;
     case 'forgotPassword':
-      title = 'Reset your password';
+      title = getLocale('reset_password');
       break;
     default:
-      title = 'Sign in to connect with your friends';
+      title = getLocale('sign_in_suggest');
   }
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function AuthPage() {
           <div>
             <input
               type="email"
-              placeholder="Email address"
+              placeholder={getLocale('email_address')}
               name="email"
               disabled={isSubmitting}
               required
@@ -75,7 +76,7 @@ export default function AuthPage() {
             <div>
               <input
                 type="password"
-                placeholder="Password"
+                placeholder={getLocale('password')}
                 name="password"
                 disabled={isSubmitting}
                 required
@@ -87,11 +88,23 @@ export default function AuthPage() {
           {mode !== 'login' && mode !== 'forgotPassword' && (
             <>
               <div>
-                <input type="text" placeholder="Full name" name="fullname" disabled={isSubmitting} required />
+                <input
+                  type="text"
+                  placeholder={getLocale('full_name')}
+                  name="fullname"
+                  disabled={isSubmitting}
+                  required
+                />
                 {actionData ? inputErrors?.fullname && <p>{inputErrors.fullname}</p> : null}
               </div>
               <div>
-                <input type="text" placeholder="Username" name="username" disabled={isSubmitting} required />
+                <input
+                  type="text"
+                  placeholder={getLocale('username')}
+                  name="username"
+                  disabled={isSubmitting}
+                  required
+                />
                 {actionData ? inputErrors?.username && <p>{inputErrors.username}</p> : null}
               </div>
             </>
@@ -99,22 +112,24 @@ export default function AuthPage() {
         </div>
         <div className={classes.links}>
           {mode === 'login' ? (
-            <Link to="?mode=register">Haven&apos;t got an account?</Link>
+            <Link to="?mode=register">{getLocale('have_no_account')}</Link>
           ) : (
-            <Link to="?mode=login">{mode === 'forgotPassword' ? 'Back to login?' : 'Existing account?'}</Link>
+            <Link to="?mode=login">
+              {mode === 'forgotPassword' ? getLocale('back_to_login') : getLocale('existing_account')}
+            </Link>
           )}
-          {mode === 'login' && <Link to="?mode=forgotPassword">Forgot password?</Link>}
+          {mode === 'login' && <Link to="?mode=forgotPassword">{getLocale('forgot_password')}</Link>}
         </div>
         <button className="btn1">
           {mode === 'login'
             ? isSubmitting
               ? 'Logging in...'
-              : 'Login'
+              : getLocale('login')
             : isSubmitting
             ? 'Registering...'
             : mode !== 'forgotPassword'
-            ? 'Register'
-            : 'Send request'}
+            ? getLocale('register')
+            : getLocale('send_request')}
         </button>
       </Form>
     </main>

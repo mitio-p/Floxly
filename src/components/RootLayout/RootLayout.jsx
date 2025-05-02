@@ -47,7 +47,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!localStorage.getItem('lang')) {
-      localStorage.setItem('lang', 'en');
+      localStorage.setItem('lang', 'bg');
     }
   }, []);
   return (

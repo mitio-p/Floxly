@@ -41,6 +41,22 @@ const en = {
   remove_from_list: 'Remove from the list',
   add_to_list: 'Add to the list',
   suggested: 'Suggested',
+  follow_people_suggest: 'Follow people to see their posts here!',
+  no_recomended_posts: 'You have no recommended posts!',
+  login_to_account: 'Login to your account!',
+  email_address: 'Email address',
+  password: 'Password',
+  have_no_account: "Haven't got an account?",
+  forgot_password: 'Forgot password?',
+  login: 'Login',
+  reset_password: 'Reset your password',
+  back_to_login: 'Back to login?',
+  send_request: 'Send request',
+  sign_in_suggest: 'Sign in to connect with your friends',
+  full_name: 'Full name',
+  username: 'Username',
+  existing_account: 'Existing account?',
+  register: 'Register',
 };
 const bg = {
   home: 'Начало',
@@ -85,12 +101,28 @@ const bg = {
   remove_from_list: 'Премахни от списъка',
   add_to_list: 'Добави в списъка',
   suggested: 'Предложения',
+  follow_people_suggest: 'Следвайте хора за да видите техните публикации тук!',
+  no_recomended_posts: 'Нямате препоръчани публикации!',
+  login_to_account: 'Влезте във вашия акаунт!',
+  email_address: 'Имейл адрес',
+  password: 'Парола',
+  have_no_account: 'Нямате акаунт?',
+  forgot_password: 'Забравена парола?',
+  login: 'Влез',
+  reset_password: 'Възстановяване на паролата',
+  back_to_login: 'Към вписване?',
+  send_request: 'Изпрати заявка',
+  sign_in_suggest: 'Регистрирайте се за да се свържете с приятелите си',
+  full_name: 'Пълно име',
+  username: 'Потребителско име',
+  existing_account: 'Съществуващ акаунт?',
+  register: 'Регистриране',
 };
 
 export function getLocale(key) {
-  if (localStorage.getItem('lang') === 'bg') {
-    return bg[key] ? bg[key] : '[NO AVAIBLE TRANSLATION]';
-  } else {
+  if (localStorage.getItem('lang') === 'en') {
     return en[key] ? en[key] : '[NO AVAIBLE TRANSLATION]';
+  } else {
+    return bg[key] ? bg[key] : '[NO AVAIBLE TRANSLATION]';
   }
 }

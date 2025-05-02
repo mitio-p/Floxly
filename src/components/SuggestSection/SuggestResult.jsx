@@ -2,6 +2,7 @@ import { useState } from 'react';
 import classes from './Suggest.module.css';
 import authFetch from '../../Utils/authFetch';
 import { useNavigate } from 'react-router-dom';
+import { getLocale } from '../../Utils/localization';
 
 export default function SuggestResult({ account }) {
   const [isFollowing, setIsFollowing] = useState(false);
@@ -49,7 +50,7 @@ export default function SuggestResult({ account }) {
         className={isFollowing ? classes.followingButton : classes.followButton}
         onClick={isFollowing ? handleUnfollow : handleFollow}
       >
-        {isFollowing ? 'Following' : 'Follow'}
+        {isFollowing ? getLocale('unfollow') : getLocale('follow')}
       </button>
     </div>
   );
