@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import HomeView from '../../components/HomeView/HomeView.jsx';
 import Suggest from '../../components/SuggestSection/Suggest.jsx';
 import authFetch from '../../Utils/authFetch.js';

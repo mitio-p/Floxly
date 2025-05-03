@@ -7,6 +7,12 @@
   align-items: center;
 }
 
+@media (max-width: 1000px) {
+  .conversationContainer {
+    height: 93vh;
+  }
+}
+
 .conversationContainer header {
   height: 60px;
   width: 100%;

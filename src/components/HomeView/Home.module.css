@@ -8,6 +8,12 @@
   margin-bottom: 20px;
 }
 
+@media (max-width: 1000) {
+  .homeViewContainer {
+    height: 93vh;
+  }
+}
+
 .variantSwitcher {
   display: flex;
   gap: 10px;

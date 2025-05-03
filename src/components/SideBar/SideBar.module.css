@@ -6,6 +6,25 @@
   position: relative;
 }
 
+.sideBarMobile {
+  position: fixed;
+  background-color: #000000;
+  bottom: 0;
+  width: 100vw;
+  z-index: 9999;
+  border-top: solid 1px rgb(51, 51, 51);
+}
+
+.barItemsMobile {
+  list-style-type: none;
+  padding: 0;
+  padding-top: 30px;
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: 0;
+  margin: 0;
+}
+
 .logoContainer {
   padding-top: 20px;
   padding-left: 5px;
@@ -13,7 +32,7 @@
 
 .logoContainer p {
   color: var(--foreground-color);
-  font-family: "Montserrat";
+  font-family: 'Montserrat';
   font-weight: bold;
   cursor: pointer;
   text-decoration: none;
@@ -51,27 +70,6 @@
   transition: all 0.15s;
 }
 
-.passiveLink:hover {
-  background-color: #a4d3b147;
-}
-
-.passiveLink p {
-  color: var(--foreground-color);
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  font-family: "Rubik";
-}
-
-.passiveLink img {
-  width: 25px;
-  object-fit: cover;
-}
-
-.passiveLink .indicator {
-  display: none;
-}
-
 .activeLink {
   display: flex;
   gap: 15px;
@@ -86,6 +84,52 @@
   transition: all 0.15s;
 }
 
+@media (max-width: 1000px) {
+  .passiveLink {
+    width: 100%;
+    height: 50px;
+    text-decoration: none;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.15s;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .activeLink {
+    width: 90%;
+    height: 50px;
+    align-items: center;
+    text-decoration: none;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.15s;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+.passiveLink:hover {
+  background-color: #a4d3b147;
+}
+
+.passiveLink p {
+  color: var(--foreground-color);
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  font-family: 'Rubik';
+}
+
+.passiveLink img {
+  width: 25px;
+  object-fit: cover;
+}
+
+.passiveLink .indicator {
+  display: none;
+}
+
 .activeLink:hover {
   background-color: #a4d3b147;
 }
@@ -95,7 +139,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Rubik";
+  font-family: 'Rubik';
 }
 
 .activeLink img {
@@ -110,14 +154,6 @@
   left: -5px;
   border-radius: 50px;
   background-color: var(--foreground-color);
-  animation-name: indicator;
-  animation-duration: 0.3s;
-}
-
-@keyframes indicator {
-  from {
-    height: 0px;
-  }
 }
 
 .picture {
@@ -144,7 +180,7 @@
   color: #c14343;
   font-size: 20px;
   font-weight: 600;
-  font-family: "Rubik";
+  font-family: 'Rubik';
   transition: all 0.15s;
   border-radius: 5px;
   display: flex;
@@ -164,7 +200,7 @@
 .titleContainer {
   margin-top: 30px;
   color: var(--foreground-color);
-  font-family: "Roboto";
+  font-family: 'Roboto';
   text-decoration: none;
   font-size: 25px;
   transition: all 0.15s;
@@ -183,6 +219,6 @@
   padding-left: 5px;
   padding-right: 5px;
   padding-top: 2px;
-  font-family: "Roboto";
+  font-family: 'Roboto';
   font-size: 15px;
 }
