@@ -8,6 +8,12 @@
   padding-right: 20px;
 }
 
+@media (max-width: 1000px) {
+  .globalContainer {
+    height: 95vh;
+  }
+}
+
 .globalContainer h1 {
   color: var(--foreground-color);
   font-family: 'Rubik';

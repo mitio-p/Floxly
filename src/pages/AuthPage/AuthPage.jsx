@@ -1,4 +1,12 @@
-import { Form, Link, redirect, useActionData, useNavigate, useNavigation, useSearchParams } from 'react-router-dom';
+import {
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useNavigate,
+  useNavigation,
+  useSearchParams,
+} from 'react-router-dom';
 import classes from './AuthPage.module.css';
 import tokenSevice from '../../Utils/tokenService';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -57,70 +65,84 @@ export default function AuthPage() {
 
   return (
     <main className={classes.formContainer}>
-      <Form method="POST" className={classes.authForm}>
+      <Form method='POST' className={classes.authForm}>
         <h2>FLOXLY</h2>
         <p>{title}</p>
         <div className={classes.fieldsContainer}>
           <div>
             <input
-              type="email"
+              type='email'
               placeholder={getLocale('email_address')}
-              name="email"
+              name='email'
               disabled={isSubmitting}
               required
               ref={emailInput}
             />
-            {actionData ? inputErrors?.email && <p>{inputErrors.email}</p> : null}
+            {actionData
+              ? inputErrors?.email && <p>{inputErrors.email}</p>
+              : null}
           </div>
           {mode !== 'forgotPassword' && (
             <div>
               <input
-                type="password"
+                type='password'
                 placeholder={getLocale('password')}
-                name="password"
+                name='password'
                 disabled={isSubmitting}
                 required
                 ref={passwordInput}
               />
-              {actionData ? inputErrors?.password && <p>{inputErrors.password}</p> : null}
+              {actionData
+                ? inputErrors?.password && <p>{inputErrors.password}</p>
+                : null}
             </div>
           )}
           {mode !== 'login' && mode !== 'forgotPassword' && (
             <>
               <div>
                 <input
-                  type="text"
+                  type='text'
                   placeholder={getLocale('full_name')}
-                  name="fullname"
+                  name='fullname'
                   disabled={isSubmitting}
                   required
                 />
-                {actionData ? inputErrors?.fullname && <p>{inputErrors.fullname}</p> : null}
+                {actionData
+                  ? inputErrors?.fullname && <p>{inputErrors.fullname}</p>
+                  : null}
               </div>
               <div>
                 <input
-                  type="text"
+                  type='text'
                   placeholder={getLocale('username')}
-                  name="username"
+                  name='username'
                   disabled={isSubmitting}
                   required
                 />
-                {actionData ? inputErrors?.username && <p>{inputErrors.username}</p> : null}
+                {actionData
+                  ? inputErrors?.username && <p>{inputErrors.username}</p>
+                  : null}
               </div>
             </>
           )}
         </div>
         <div className={classes.links}>
           {mode === 'login' ? (
-            <Link to="?mode=register">{getLocale('have_no_account')}</Link>
+            <Link to='?mode=register'>{getLocale('have_no_account')}</Link>
           ) : (
-            <Link to="?mode=login">
-              {mode === 'forgotPassword' ? getLocale('back_to_login') : getLocale('existing_account')}
+            <Link to='?mode=login'>
+              {mode === 'forgotPassword'
+                ? getLocale('back_to_login')
+                : getLocale('existing_account')}
             </Link>
           )}
-          {mode === 'login' && <Link to="?mode=forgotPassword">{getLocale('forgot_password')}</Link>}
+          {mode === 'login' && (
+            <Link to='?mode=forgotPassword'>
+              {getLocale('forgot_password')}
+            </Link>
+          )}
         </div>
-        <button className="btn1">
+        <button className='btn1'>
           {mode === 'login'
             ? isSubmitting
               ? 'Logging in...'

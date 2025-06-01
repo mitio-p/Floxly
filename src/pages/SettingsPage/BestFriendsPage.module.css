@@ -9,9 +9,12 @@
 
 .globalContainer h1 {
   margin: 0;
-  font-family: "Rubik";
+  font-family: 'Rubik';
   color: var(--foreground-color);
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .listContainer {
@@ -40,5 +43,19 @@
   outline: none;
   color: var(--foreground-color);
   font-size: 20px;
-  font-family: "Roboto";
+  font-family: 'Roboto';
+}
+
+.back {
+  display: none;
+  width: 30px;
+  aspect-ratio: 1/1;
+  left: 4px;
+  cursor: pointer;
+}
+
+@media (max-width: 1275px) {
+  .back {
+    display: block;
+  }
 }

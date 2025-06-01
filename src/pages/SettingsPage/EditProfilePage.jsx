@@ -8,6 +8,7 @@ import trashIcon from '../../assets/icons/delete.png';
 import { Form, useActionData, useNavigate } from 'react-router-dom';
 import authFetch from '../../Utils/authFetch';
 import { getLocale } from '../../Utils/localization';
+import leftArrowIcon from '../../assets/icons/left-arrow.png';
 
 const acceptedImageTypes = ['jpeg', 'png', 'jpg'];
 const maxFileSize = 4194304;
@@ -37,9 +38,13 @@ export default function EditProfilePage() {
 
   function handleUploadPhoto(event) {
     if (event.target.value) {
-      if (acceptedImageTypes.includes(event.target.files[0].type.split('/')[1])) {
+      if (
+        acceptedImageTypes.includes(event.target.files[0].type.split('/')[1])
+      ) {
         if (event.target.files[0].size < maxFileSize) {
-          const blob = new Blob([event.target.files[0]], { type: event.target.files[0].type });
+          const blob = new Blob([event.target.files[0]], {
+            type: event.target.files[0].type,
+          });
           const photoURL = URL.createObjectURL(blob);
           setCurrentPhoto({ url: photoURL, file: event.target.files[0] });
         } else {
@@ -61,8 +66,21 @@ export default function EditProfilePage() {
 
   return (
     <main className={classes.globalContainer}>
-      <Form method="POST" className={classes.optionsContainer} encType="multipart/form-data">
-        <h1>{getLocale('edit_profile')}</h1>
+      <Form
+        method='POST'
+        className={classes.optionsContainer}
+        encType='multipart/form-data'
+      >
+        <h1>
+          <img
+            src={leftArrowIcon}
+            className={classes.back}
+            onClick={() => {
+              navigate('/settings');
+            }}
+          />
+          {getLocale('edit_profile')}
+        </h1>
         <div className={classes.photoOptionContainer}>
           <div
             className={classes.fileInputContainer}
@@ -73,21 +91,34 @@ export default function EditProfilePage() {
               setPictureHovered(false);
             }}
           >
-            <input onChange={handleUploadPhoto} id="profilePictureInput" type="file" ref={photoInputRef} name="photo" />
-            <img src={!currentPhoto ? userData.user.profilePicture : currentPhoto.url} alt="" />
+            <input
+              onChange={handleUploadPhoto}
+              id='profilePictureInput'
+              type='file'
+              ref={photoInputRef}
+              name='photo'
+            />
+            <img
+              src={
+                !currentPhoto ? userData.user.profilePicture : currentPhoto.url
+              }
+              alt=''
+            />
             {isPictureHovered && (
               <div className={classes.deletePhotoSuggest}>
                 <img src={trashIcon} onClick={handleRemovePhoto} />
               </div>
             )}
           </div>
-          <label htmlFor="profilePictureInput">{getLocale('change_photo')}</label>
+          <label htmlFor='profilePictureInput'>
+            {getLocale('change_photo')}
+          </label>
         </div>
         <Input
           label={getLocale('username')}
           maxCharacters={16}
           enableCounter={true}
-          name="username"
+          name='username'
           errorMessage={actionData?.errors?.username}
           ref={usernameInputRef}
         />
@@ -95,19 +126,27 @@ export default function EditProfilePage() {
           label={getLocale('fullname')}
           maxCharacters={50}
           enableCounter={true}
-          name="fullName"
+          name='fullName'
           ref={fullnameInputRef}
         />
         <Input
           label={getLocale('bio')}
           maxCharacters={150}
           enableCounter={true}
-          name="bio"
+          name='bio'
           isTextArea={true}
           enableEmoji={true}
           ref={bioInputRef}
         />
-        <button className="btn1" style={{ position: 'absolute', right: 0, bottom: '-60px', width: 150 }}>
+        <button
+          className='btn1'
+          style={{
+            position: 'absolute',
+            right: 0,
+            bottom: '-60px',
+            width: 150,
+          }}
+        >
           {getLocale('submit')}
         </button>
       </Form>
@@ -117,11 +156,14 @@ export default function EditProfilePage() {
 
 export async function action({ request }) {
   const fd = await request.formData();
-  const response = await authFetch('http://localhost:3000/floxly/user/updateUserInfo', {
-    credentials: 'include',
-    method: 'POST',
-    body: fd,
-  });
+  const response = await authFetch(
+    'http://localhost:3000/floxly/user/updateUserInfo',
+    {
+      credentials: 'include',
+      method: 'POST',
+      body: fd,
+    }
+  );
 
   return response;
 }

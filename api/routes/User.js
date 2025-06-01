@@ -69,14 +69,23 @@ router.get('/user/:username', gatherUserInfo, async (req, res) => {
         author: fetchedUser._id,
       });
     } else {
-      if (!fetchedUser.privateAccount || fetchedUser.followers.includes(req.user._id.toString())) {
-        publicUserInfo.gallery = userGallery;
-        publicUserInfo.posts = await PostsSchema.find({
-          author: fetchedUser.username,
-        });
-        publicUserInfo.topics = await TopicsSchema.find({
-          author: fetchedUser._id,
-        });
+      if (!fetchedUser.isDeactivated) {
+        if (
+          !fetchedUser.privateAccount ||
+          fetchedUser.followers.includes(req.user._id.toString())
+        ) {
+          publicUserInfo.gallery = userGallery;
+          publicUserInfo.posts = await PostsSchema.find({
+            author: fetchedUser.username,
+          });
+          publicUserInfo.topics = await TopicsSchema.find({
+            author: fetchedUser._id,
+          });
+        }
+      } else {
+        publicUserInfo.gallery = [];
+        publicUserInfo.posts = [];
+        publicUserInfo.topics = [];
       }
     }
 
@@ -85,7 +94,9 @@ router.get('/user/:username', gatherUserInfo, async (req, res) => {
     res.status(200).json({
       user: publicUserInfo,
       isFollowing: isFollowing,
-      isRequested: fetchedUser.followRequestUsers.includes(req.user._id.toString()),
+      isRequested: fetchedUser.followRequestUsers.includes(
+        req.user._id.toString()
+      ),
     });
   } else {
     res.sendStatus(404);
@@ -143,96 +154,113 @@ router.get('/user/unfollow/:username', gatherUserInfo, async (req, res) => {
     targetUser !== fetchedUser &&
     targetUser.followers.includes(fetchedUser._id.toString())
   ) {
-    targetUser.followers.splice(targetUser.followers.indexOf(fetchedUser._id.toString()), 1);
-    fetchedUser.following.splice(fetchedUser.following.indexOf(targetUser._id.toString(), 1));
+    targetUser.followers.splice(
+      targetUser.followers.indexOf(fetchedUser._id.toString()),
+      1
+    );
+    fetchedUser.following.splice(
+      fetchedUser.following.indexOf(targetUser._id.toString(), 1)
+    );
     targetUser.save();
     fetchedUser.save();
     res.sendStatus(200);
   }
 });
 
-router.post('/user/uploadImageToGallery', upload.single('photoFile'), gatherUserInfo, async (req, res) => {
-  const user = await UserSchema.findById(req.user._id);
-  const formData = req.body;
+router.post(
+  '/user/uploadImageToGallery',
+  upload.single('photoFile'),
+  gatherUserInfo,
+  async (req, res) => {
+    const user = await UserSchema.findById(req.user._id);
+    const formData = req.body;
 
-  const bucketName = 'user-gallery-photos';
-  const objectKey = crypto.randomBytes(10).toString('hex') + req.file.originalname;
+    const bucketName = 'user-gallery-photos';
+    const objectKey =
+      crypto.randomBytes(10).toString('hex') + req.file.originalname;
 
-  const params = {
-    Bucket: bucketName,
-    Key: objectKey,
-    Body: req.file.buffer,
-  };
+    const params = {
+      Bucket: bucketName,
+      Key: objectKey,
+      Body: req.file.buffer,
+    };
 
-  //Uploading the photo to the AWS servers
-  s3.putObject(params)
-    .promise()
-    .then(async () => {
-      GalleryPhotosSchema.create({
-        author: user._id,
-        imgSrc: `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`,
-        text: formData.text,
-        location: formData.location,
-        tagged: formData.tagged,
-        isBestFriendsOnly: formData.bestFriendsOnly === 'true',
-        isLikesCountHidden: formData.isLikesCountHidden === 'true',
-        isCommentsOff: formData.isCommentsOff === 'true',
-      })
-        .then(() => {
-          res.sendStatus(200);
+    //Uploading the photo to the AWS servers
+    s3.putObject(params)
+      .promise()
+      .then(async () => {
+        GalleryPhotosSchema.create({
+          author: user._id,
+          imgSrc: `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`,
+          text: formData.text,
+          location: formData.location,
+          tagged: formData.tagged,
+          isBestFriendsOnly: formData.bestFriendsOnly === 'true',
+          isLikesCountHidden: formData.isLikesCountHidden === 'true',
+          isCommentsOff: formData.isCommentsOff === 'true',
         })
-        .catch(() => {
-          res.sendStatus(500);
-        });
-    })
-    .catch(() => {
-      res.sendStatus(500);
-    });
-});
-
-router.post('/user/updateUserInfo', upload.single('photo'), gatherUserInfo, async (req, res) => {
-  const formData = req.body;
-
-  const bucketName = 'user-profile-pictures-floxly1';
-
-  if (formData.username || formData.fullName || formData.bio || req.file) {
-    const fetchedUser = await UserSchema.findById(req.user._id);
-
-    if (req.file) {
-      const objectKey = crypto.randomBytes(10).toString('hex') + req.file.originalname;
-      const params = {
-        Bucket: bucketName,
-        Key: objectKey,
-        Body: req.file.buffer,
-      };
-      await s3.putObject(params).promise();
-      fetchedUser.profilePicture = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`;
-    }
-
-    if (formData?.username) {
-      const duplcatedUser = await UserSchema.findOne({
-        username: formData.username,
+          .then(() => {
+            res.sendStatus(200);
+          })
+          .catch(() => {
+            res.sendStatus(500);
+          });
+      })
+      .catch(() => {
+        res.sendStatus(500);
       });
-      if (duplcatedUser) {
-        return res.status(400).send({
-          errors: { username: 'This username is already taken' },
-        });
-      }
-    }
-    //Saving only the changed fields
-    Object.keys(formData).forEach(async (key) => {
-      formData[key] ? (fetchedUser[key] = formData[key]) : null;
-    });
-    fetchedUser.save();
-    res.json({
-      success: { message: 'User profile updated successfully!' },
-    });
-  } else {
-    res.status(400).send({
-      error: { message: 'Enter at least one field to update the profile!' },
-    });
   }
-});
+);
+
+router.post(
+  '/user/updateUserInfo',
+  upload.single('photo'),
+  gatherUserInfo,
+  async (req, res) => {
+    const formData = req.body;
+
+    const bucketName = 'user-profile-pictures-floxly1';
+
+    if (formData.username || formData.fullName || formData.bio || req.file) {
+      const fetchedUser = await UserSchema.findById(req.user._id);
+
+      if (req.file) {
+        const objectKey =
+          crypto.randomBytes(10).toString('hex') + req.file.originalname;
+        const params = {
+          Bucket: bucketName,
+          Key: objectKey,
+          Body: req.file.buffer,
+        };
+        await s3.putObject(params).promise();
+        fetchedUser.profilePicture = `https://${bucketName}.s3.${awsRegion}.amazonaws.com/${objectKey}`;
+      }
+
+      if (formData?.username) {
+        const duplcatedUser = await UserSchema.findOne({
+          username: formData.username,
+        });
+        if (duplcatedUser) {
+          return res.status(400).send({
+            errors: { username: 'This username is already taken' },
+          });
+        }
+      }
+      //Saving only the changed fields
+      Object.keys(formData).forEach(async (key) => {
+        formData[key] ? (fetchedUser[key] = formData[key]) : null;
+      });
+      fetchedUser.save();
+      res.json({
+        success: { message: 'User profile updated successfully!' },
+      });
+    } else {
+      res.status(400).send({
+        error: { message: 'Enter at least one field to update the profile!' },
+      });
+    }
+  }
+);
 
 router.get('/users/best_friends', gatherUserInfo, async (req, res) => {
   const userBestFriendIds = req.user.bestFriends;
@@ -240,34 +268,43 @@ router.get('/users/best_friends', gatherUserInfo, async (req, res) => {
 
   //Converting user Ids to user infos
   for (const bestFriendId of userBestFriendIds) {
-    bestFriendsList.push(await UserSchema.findById(bestFriendId).select('profilePicture username fullName'));
+    bestFriendsList.push(
+      await UserSchema.findById(bestFriendId).select(
+        'profilePicture username fullName'
+      )
+    );
   }
 
   res.json(bestFriendsList);
 });
 
-router.get('/user/cancelRequest/:username', gatherUserInfo, async (req, res) => {
-  const fetchedUser = await UserSchema.findOne({
-    username: req.params.username,
-  });
-  if (fetchedUser.followRequestUsers.includes(req.user._id)) {
-    const userIndex = fetchedUser.followRequestUsers.indexOf(req.user._id);
-    fetchedUser.followRequestUsers.splice(userIndex, 1);
-    fetchedUser.notifications = fetchedUser.notifications.filter(
-      (notification) => notification.from !== req.user._id.toString()
-    );
-    fetchedUser.save();
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(404);
+router.get(
+  '/user/cancelRequest/:username',
+  gatherUserInfo,
+  async (req, res) => {
+    const fetchedUser = await UserSchema.findOne({
+      username: req.params.username,
+    });
+    if (fetchedUser.followRequestUsers.includes(req.user._id)) {
+      const userIndex = fetchedUser.followRequestUsers.indexOf(req.user._id);
+      fetchedUser.followRequestUsers.splice(userIndex, 1);
+      fetchedUser.notifications = fetchedUser.notifications.filter(
+        (notification) => notification.from !== req.user._id.toString()
+      );
+      fetchedUser.save();
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(404);
+    }
   }
-});
+);
 
 router.get('/users/search/:query', async (req, res) => {
   const query = req.params.query;
   const searchResult = await UserSchema.find({
     username: { $regex: query, $options: 'i' },
   }).select('username profilePicture fullName');
+
   res.json(searchResult);
 });
 
@@ -276,7 +313,9 @@ router.post('/users/addSearch', gatherUserInfo, async (req, res) => {
   console.log(req.body);
 
   try {
-    const searchedUser = await UserSchema.findById(req.body).select('profilePicture username fullName');
+    const searchedUser = await UserSchema.findById(req.body).select(
+      'profilePicture username fullName'
+    );
 
     if (!searchedUser) return res.sendStatus(404);
 
@@ -326,7 +365,8 @@ router.post('/user/acceptFollowRequest', gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that will accept
 
   if (targetUser) {
-    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString())) return res.sendStatus(404);
+    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString()))
+      return res.sendStatus(404);
     targetUser.following.push(req.user._id.toString());
     fetchedUser.followers.push(req.body.id);
     const index = fetchedUser.followRequestUsers.indexOf(req.user._id);
@@ -348,7 +388,8 @@ router.post('/user/rejectFollowRequest', gatherUserInfo, async (req, res) => {
   const fetchedUser = await UserSchema.findById(req.user._id.toString()); // User that reject
 
   if (targetUser) {
-    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString())) return res.sendStatus(404);
+    if (!fetchedUser.followRequestUsers.includes(targetUser._id.toString()))
+      return res.sendStatus(404);
     const index = fetchedUser.followRequestUsers.indexOf(req.user._id);
     fetchedUser.followRequestUsers.splice(index, 1);
     fetchedUser.notifications = fetchedUser.notifications.filter(
@@ -429,12 +470,15 @@ router.get('/photo/:photoId', gatherUserInfo, async (req, res) => {
 
     //Converting author id to author data
     for (let comment of photo.comments) {
-      const author = await UserSchema.findById(comment.author).select('profilePicture username');
+      const author = await UserSchema.findById(comment.author).select(
+        'profilePicture username'
+      );
       comment.author = author;
       updatedComments.push(comment);
     }
 
-    if (photo.isLikesCountHidden && photo.author !== req.user._id.toString()) photo.likersId = null;
+    if (photo.isLikesCountHidden && photo.author !== req.user._id.toString())
+      photo.likersId = null;
 
     //sorting comments by likes
     updatedComments.sort((a, b) => b.likers.length - a.likers.length);
@@ -497,7 +541,8 @@ router.post('/photo/:photoId/comment', gatherUserInfo, async (req, res) => {
   )
     return res.sendStatus(403);
 
-  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id))
+    return res.sendStatus(403);
 
   if (!photo) return res.sendStatus(404);
 
@@ -531,111 +576,134 @@ router.post('/photo/:photoId/comment', gatherUserInfo, async (req, res) => {
   });
 });
 
-router.post('/photo/:photoId/comment/like', gatherUserInfo, async (req, res) => {
-  if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
+router.post(
+  '/photo/:photoId/comment/like',
+  gatherUserInfo,
+  async (req, res) => {
+    if (!req.body.id || typeof req.body.id !== 'number')
+      return res.sendStatus(400);
 
-  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
-  if (!photo) return res.sendStatus(404);
+    const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+    if (!photo) return res.sendStatus(404);
 
-  const author = await UserSchema.findById(photo.author);
-  if (
-    author.privateAccount &&
-    !author.followers.includes(req.user._id) &&
-    req.user._id.toString() !== author._id.toString()
-  )
-    return res.sendStatus(403);
+    const author = await UserSchema.findById(photo.author);
+    if (
+      author.privateAccount &&
+      !author.followers.includes(req.user._id) &&
+      req.user._id.toString() !== author._id.toString()
+    )
+      return res.sendStatus(403);
 
-  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+    if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id))
+      return res.sendStatus(403);
 
-  let commentIndex = photo.comments.findIndex((comment) => comment.id === req.body.id);
-  if (commentIndex === -1) return res.sendStatus(404);
+    let commentIndex = photo.comments.findIndex(
+      (comment) => comment.id === req.body.id
+    );
+    if (commentIndex === -1) return res.sendStatus(404);
 
-  if (photo.comments[commentIndex].likers.includes(req.user._id.toString())) {
-    return res.sendStatus(400);
+    if (photo.comments[commentIndex].likers.includes(req.user._id.toString())) {
+      return res.sendStatus(400);
+    }
+
+    photo.comments[commentIndex].likers.push(req.user._id.toString());
+
+    console.log(photo.comments[commentIndex]);
+
+    photo.markModified('comments');
+
+    await photo.save();
+
+    res.sendStatus(200);
   }
-
-  photo.comments[commentIndex].likers.push(req.user._id.toString());
-
-  console.log(photo.comments[commentIndex]);
-
-  photo.markModified('comments');
-
-  await photo.save();
-
-  res.sendStatus(200);
-});
+);
 
 router.delete('/photo/:photoId/delete', gatherUserInfo, async (req, res) => {
   const photo = await GalleryPhotosSchema.findById(req.params.photoId);
 
   if (!photo) return res.sendStatus(404);
-  if (photo.author.toString() !== req.user._id.toString()) return res.sendStatus(400);
+  if (photo.author.toString() !== req.user._id.toString())
+    return res.sendStatus(400);
 
   await photo.deleteOne();
 
   res.sendStatus(200);
 });
 
-router.post('/photo/:photoId/comment/cancelLike', gatherUserInfo, async (req, res) => {
-  if (!req.body.id || typeof req.body.id !== 'number') return res.sendStatus(400);
+router.post(
+  '/photo/:photoId/comment/cancelLike',
+  gatherUserInfo,
+  async (req, res) => {
+    if (!req.body.id || typeof req.body.id !== 'number')
+      return res.sendStatus(400);
 
-  const photo = await GalleryPhotosSchema.findById(req.params.photoId);
-  if (!photo) return res.sendStatus(404);
+    const photo = await GalleryPhotosSchema.findById(req.params.photoId);
+    if (!photo) return res.sendStatus(404);
 
-  const author = await UserSchema.findById(photo.author);
-  if (
-    author.privateAccount &&
-    !author.followers.includes(req.user._id) &&
-    req.user._id.toString() !== author._id.toString()
-  )
-    return res.sendStatus(403);
+    const author = await UserSchema.findById(photo.author);
+    if (
+      author.privateAccount &&
+      !author.followers.includes(req.user._id) &&
+      req.user._id.toString() !== author._id.toString()
+    )
+      return res.sendStatus(403);
 
-  if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id)) return res.sendStatus(403);
+    if (photo.isBestFriendsOnly && !author.bestFriends.includes(req.user._id))
+      return res.sendStatus(403);
 
-  let commentIndex = photo.comments.findIndex((comment) => comment.id === Number(req.body.id));
-  if (commentIndex === -1) return res.sendStatus(404);
+    let commentIndex = photo.comments.findIndex(
+      (comment) => comment.id === Number(req.body.id)
+    );
+    if (commentIndex === -1) return res.sendStatus(404);
 
-  const likers = photo.comments[commentIndex].likers;
-  const userIndex = likers.indexOf(req.user._id.toString());
+    const likers = photo.comments[commentIndex].likers;
+    const userIndex = likers.indexOf(req.user._id.toString());
 
-  if (userIndex === -1) return res.sendStatus(400);
+    if (userIndex === -1) return res.sendStatus(400);
 
-  likers.splice(userIndex, 1);
+    likers.splice(userIndex, 1);
 
-  photo.markModified('comments');
+    photo.markModified('comments');
 
-  await photo.save();
+    await photo.save();
 
-  res.sendStatus(200);
-});
+    res.sendStatus(200);
+  }
+);
 
-router.get('/user/fetch/recommended-posts', gatherUserInfo, async (req, res) => {
-  const userFollowingAccountsIds = req.user.following;
-  let posts = [];
+router.get(
+  '/user/fetch/recommended-posts',
+  gatherUserInfo,
+  async (req, res) => {
+    const userFollowingAccountsIds = req.user.following;
+    let posts = [];
 
-  for (let accountId of userFollowingAccountsIds) {
-    const accountPosts = await GalleryPhotosSchema.find({
-      author: accountId,
-      isBestFriendsOnly: false,
-      isDeactivated: false,
-    });
+    for (let accountId of userFollowingAccountsIds) {
+      const accountPosts = await GalleryPhotosSchema.find({
+        author: accountId,
+        isBestFriendsOnly: false,
+        isDeactivated: false,
+      });
 
-    let updatedPosts = [];
+      let updatedPosts = [];
 
-    for (let post of accountPosts) {
-      const postObj = post.toObject();
-      const authorDetails = await UserSchema.findById(post.author).select('username fullName profilePicture');
+      for (let post of accountPosts) {
+        const postObj = post.toObject();
+        const authorDetails = await UserSchema.findById(post.author).select(
+          'username fullName profilePicture'
+        );
 
-      postObj.author = authorDetails;
-      updatedPosts.push(postObj);
+        postObj.author = authorDetails;
+        updatedPosts.push(postObj);
+      }
+
+      posts.push(...updatedPosts);
     }
 
-    posts.push(...updatedPosts);
+    posts.sort((postA, postB) => postB.uploadedAt - postA.uploadedAt);
+    res.json(posts);
   }
-
-  posts.sort((postA, postB) => postB.uploadedAt - postA.uploadedAt);
-  res.json(posts);
-});
+);
 
 router.post('/user/upload-topic', gatherUserInfo, (req, res) => {
   const text = req.body.text;
@@ -658,13 +726,17 @@ router.get('/user/fetch/topics', gatherUserInfo, async (req, res) => {
   for (let topic of topics) {
     const updatedTopic = topic.toObject();
     let updatedComments = [];
-    const author = await UserSchema.findById(updatedTopic.author).select('username profilePicture');
+    const author = await UserSchema.findById(updatedTopic.author).select(
+      'username profilePicture'
+    );
     updatedTopic.author = {
       username: author.username,
       profilePicture: author.profilePicture,
     };
     for (let comment of topic.comments) {
-      const author = await UserSchema.findById(comment.author).select('profilePicture username');
+      const author = await UserSchema.findById(comment.author).select(
+        'profilePicture username'
+      );
       comment.author = author;
       updatedComments.push(comment);
     }

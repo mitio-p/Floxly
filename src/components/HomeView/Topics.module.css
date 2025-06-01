@@ -1,5 +1,6 @@
 .createTopic {
-  width: 350px;
+  margin-top: 5px;
+  width: 345px;
   min-height: 150px;
   border-radius: 10px;
   box-shadow: 0 0 10px var(--foreground-color);
@@ -10,6 +11,21 @@
   padding-top: 45px;
   padding-bottom: 45px;
   margin-bottom: 30px;
+}
+
+.topics {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 1000px) {
+  .topics {
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .topic {

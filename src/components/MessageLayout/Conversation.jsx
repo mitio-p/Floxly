@@ -10,6 +10,7 @@ import seenIcon from '../../assets/icons/seen.png';
 import deliveringIcon from '../../assets/icons/delivering.png';
 import { getLocale } from '../../Utils/localization';
 import getTimeFromMs from '../../Utils/getTimeFromMs';
+import backIcon from '../../assets/icons/left-arrow.png';
 
 export default function Conversation() {
   const loaderData = useLoaderData();
@@ -58,12 +59,15 @@ export default function Conversation() {
 
     socket.emit('send-message', { ...newMessage, room: loaderData.id });
 
-    const response = await authFetch(`http://localhost:3000/send-message/${loaderData.id}`, {
-      method: 'POST',
-      body: JSON.stringify(newMessage),
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    });
+    const response = await authFetch(
+      `http://localhost:3000/send-message/${loaderData.id}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(newMessage),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      }
+    );
 
     if (response.ok) {
       setMessages((prev) => {
@@ -130,8 +134,16 @@ export default function Conversation() {
   return (
     <div className={classes.conversationContainer}>
       <header>
+        <img
+          src={backIcon}
+          alt=''
+          className={classes.back}
+          onClick={() => {
+            navigate('/messages');
+          }}
+        />
         <div className={classes.userInfo}>
-          <img src={loaderData.reciever.profilePicture} alt="" />
+          <img src={loaderData.reciever.profilePicture} alt='' />
           <h1
             onClick={() => {
               navigate(`/user/${loaderData.reciever.username}`);
@@ -181,15 +193,27 @@ export default function Conversation() {
         ))}
       </div>
       {isRecieverTyping && (
-        <div style={{ width: '95%', display: 'flex', justifyContent: 'start', marginBottom: '10px' }}>
+        <div
+          style={{
+            width: '95%',
+            display: 'flex',
+            justifyContent: 'start',
+            marginBottom: '10px',
+          }}
+        >
           <div className={classes.typingContainer}>{getLocale('typing')}</div>
         </div>
       )}
       <div className={classes.inputContainer}>
-        <textarea type="text" placeholder={getLocale('type_message')} onChange={handleTyping} value={messageInput} />
+        <textarea
+          type='text'
+          placeholder={getLocale('type_message')}
+          onChange={handleTyping}
+          value={messageInput}
+        />
         {messageInput.length > 0 && (
           <button onClick={handleSendMessage}>
-            <img src={rightArrowIcon} alt="" />
+            <img src={rightArrowIcon} alt='' />
           </button>
         )}
       </div>

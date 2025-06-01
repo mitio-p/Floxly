@@ -25,14 +25,17 @@ export default function Topics() {
   }
 
   async function handlePostTopic() {
-    const response = await authFetch('http://localhost:3000/floxly/user/upload-topic', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ text: topicInput.trim() }),
-    });
+    const response = await authFetch(
+      'http://localhost:3000/floxly/user/upload-topic',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ text: topicInput.trim() }),
+      }
+    );
 
     if (response.ok) {
       setTopicInput('');
@@ -44,6 +47,8 @@ export default function Topics() {
             profilePicture: userData.user.profilePicture,
           },
           text: topicInput,
+          likers: [],
+          comments: [],
         },
         ...prev,
       ]);
@@ -51,7 +56,10 @@ export default function Topics() {
   }
 
   async function handleFetchTopics() {
-    const response = await authFetch('http://localhost:3000/floxly/user/fetch/topics', { credentials: 'include' });
+    const response = await authFetch(
+      'http://localhost:3000/floxly/user/fetch/topics',
+      { credentials: 'include' }
+    );
 
     if (response.ok) {
       setTopics(await response.json());
@@ -66,22 +74,26 @@ export default function Topics() {
     <div className={classes.topics}>
       <div className={classes.createTopic}>
         <div className={classes.userInfo}>
-          <img src={userData.user.profilePicture} alt="" className={classes.profilePicture} />
+          <img
+            src={userData.user.profilePicture}
+            alt=''
+            className={classes.profilePicture}
+          />
           <p>{userData.user.username}</p>
         </div>
         <div className={classes.topicInput}>
           <textarea
-            type="text"
+            type='text'
             placeholder="What's new?"
             ref={textAreaRef}
             onChange={handleInput}
-            rows="1"
+            rows='1'
             value={topicInput}
             maxLength={500}
           />
           <img
             src={emojyIcon}
-            alt=""
+            alt=''
             onClick={() => {
               setEmojiMenuShown(true);
             }}
@@ -96,13 +108,17 @@ export default function Topics() {
           )}
           {isEmojiMenuShown && (
             <div className={classes.emojiMenu}>
-              <EmojiPicker theme="dark" onEmojiClick={handlePickEmoji} />
+              <EmojiPicker theme='dark' onEmojiClick={handlePickEmoji} />
             </div>
           )}
         </div>
         <button
           className={classes.post}
-          style={topicInput.length < 1 ? { color: 'grey', cursor: 'default' } : undefined}
+          style={
+            topicInput.length < 1
+              ? { color: 'grey', cursor: 'default' }
+              : undefined
+          }
           disabled={topicInput.length < 1}
           onClick={handlePostTopic}
         >

@@ -1,9 +1,17 @@
 .listContainer {
   width: 400px;
   height: 100vh;
-  background-color: rgba(56, 56, 56, 0.567);
+  background-color: rgba(56, 56, 56);
   border-right: solid 1px var(--border-color);
   position: relative;
+}
+
+@media (max-width: 806px) {
+  .listContainer {
+    width: 100vw;
+    position: fixed;
+    z-index: 2;
+  }
 }
 
 .listContainer h1 {
@@ -21,11 +29,24 @@
   padding: 5px;
   gap: 15px;
   cursor: pointer;
-  border-radius: 4px;
 }
 
 .convRow:hover {
+  border-radius: 4px;
   background-color: rgba(128, 128, 128, 0.294);
+}
+
+@media (max-width: 806px) {
+  .listContainer {
+    width: 100vw;
+    position: fixed;
+    z-index: 2;
+  }
+
+  .convRow {
+    border-top: solid 1px rgba(128, 128, 128, 0.386);
+    border-bottom: solid 1px rgba(128, 128, 128, 0.386);
+  }
 }
 
 .convRow img {

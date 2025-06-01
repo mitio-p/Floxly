@@ -8,6 +8,12 @@
   border-bottom: solid 1px var(--border-color);
 }
 
+@media (max-width: 450px) {
+  .postContainer {
+    width: 350px;
+  }
+}
+
 .userInfo {
   display: flex;
   align-items: center;

@@ -26,7 +26,8 @@ router.post('/signUp', signUpMiddleware, async (req, res) => {
     fullName: req.user.fullname.trim(),
     password: hashedPassword,
     email: req.user.email.trim(),
-    profilePicture: 'https://floxly-bucket.s3.eu-north-1.amazonaws.com/profilePictures/defaultProfilePicture.png',
+    profilePicture:
+      'https://floxly-bucket.s3.eu-north-1.amazonaws.com/profilePictures/defaultProfilePicture.png',
   }).then(async (user) => {
     res.status(201).send('User created!');
   });
@@ -39,12 +40,20 @@ router.post('/login', async (req, res) => {
     if (fetchedUser) {
       //Hashing and comparing inputed password to potential user's hashed password
       if (await bcrypt.compare(user.password, fetchedUser.password)) {
+        if (fetchedUser.isDeactivated)
+          return res
+            .status(403)
+            .json({ notification: 'This account is deactivated!' });
         //creating expire date for ref and accsess tokens cookies
         const refTokenExpDate = new Date();
-        refTokenExpDate.setDate(refTokenExpDate.getDate() + serverConfig.refTokenLifetime);
+        refTokenExpDate.setDate(
+          refTokenExpDate.getDate() + serverConfig.refTokenLifetime
+        );
 
         const accessTokenExpDate = new Date();
-        accessTokenExpDate.setTime(accessTokenExpDate.getTime() + serverConfig.accessTokenLiftime);
+        accessTokenExpDate.setTime(
+          accessTokenExpDate.getTime() + serverConfig.accessTokenLiftime
+        );
 
         const accessToken = jwt.sign(
           {
@@ -87,7 +96,14 @@ router.post('/login', async (req, res) => {
 
 router.get('/user', gatherUserInfo, async (req, res) => {
   const foundUser = req.user;
-  const conversations = await ConversationsSchema.find({ participants: req.user._id.toString() }, '-messages');
+
+  if (foundUser.isDeactivated)
+    return res.status(404).send('This account is deactivated');
+
+  const conversations = await ConversationsSchema.find(
+    { participants: req.user._id.toString() },
+    '-messages'
+  );
   const updatedConversations = [];
   const searchHistory = [];
 
@@ -97,7 +113,9 @@ router.get('/user', gatherUserInfo, async (req, res) => {
       updatedConversations.push({
         _id: conversation._id.toString(),
         reciever: await UsersSchema.findById(
-          conversation.participants.filter((participant) => participant !== req.user._id.toString())[0],
+          conversation.participants.filter(
+            (participant) => participant !== req.user._id.toString()
+          )[0],
           'profilePicture username -_id'
         ),
         lastMessage: conversation.lastSentMessage,
@@ -108,7 +126,9 @@ router.get('/user', gatherUserInfo, async (req, res) => {
 
   //Preparing searched results
   for (const search of foundUser.searchHistory) {
-    const searchedUser = await UsersSchema.findById(search).select('profilePicture username fullName');
+    const searchedUser = await UsersSchema.findById(search).select(
+      'profilePicture username fullName'
+    );
 
     searchHistory.push(searchedUser);
   }
@@ -148,7 +168,9 @@ router.get('/user', gatherUserInfo, async (req, res) => {
     },
   ]);
 
-  suggestedAccounts = suggestedAccounts.filter((account) => account._id.toString() !== req.user._id.toString());
+  suggestedAccounts = suggestedAccounts.filter(
+    (account) => account._id.toString() !== req.user._id.toString()
+  );
 
   if (foundUser) {
     res.status(200).json({
@@ -245,7 +267,8 @@ router.post('/checkForgotPasswordToken', async (req, res) => {
   const token = req.body.token;
   try {
     const decodedToken = jwt.decode(token);
-    if (!decodedToken) return res.status(400).json({ message: 'Token expired!' });
+    if (!decodedToken)
+      return res.status(400).json({ message: 'Token expired!' });
     if (decodedToken.exp > Date.now()) {
       const user = await UsersSchema.findOne({ forgotPasswordToken: token });
       if (user) {
@@ -267,11 +290,16 @@ router.get('/refreshToken', async (req, res) => {
 
   const decodedToken = jwt.verify(reftoken, process.env.REFRESH_TOKEN_SECRET);
 
-  if ((await RevokedTokensSchema.findOne({ token: reftoken })) || decodedToken.expire < Date.now())
+  if (
+    (await RevokedTokensSchema.findOne({ token: reftoken })) ||
+    decodedToken.expire < Date.now()
+  )
     return res.status(400).send('Token expired!');
 
   const accessTokenExpDate = new Date();
-  accessTokenExpDate.setTime(accessTokenExpDate.getTime() + serverConfig.accessTokenLiftime);
+  accessTokenExpDate.setTime(
+    accessTokenExpDate.getTime() + serverConfig.accessTokenLiftime
+  );
   const accessToken = jwt.sign(
     { uid: decodedToken.uid, expire: accessTokenExpDate.getTime() },
     process.env.ACCESS_TOKEN_SECRET

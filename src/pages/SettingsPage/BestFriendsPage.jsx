@@ -1,22 +1,30 @@
 import authFetch from '../../Utils/authFetch';
 import classes from './BestFriendsPage.module.css';
 import BestFriendRow from '../../components/BestFriendsRow/BestFriendRow';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import UserCTX from '../../Context/UserCTX';
 import { getLocale } from '../../Utils/localization';
+import leftArrowIcon from '../../assets/icons/left-arrow.png';
 
 export default function BestFriendsPage() {
   const loaderData = useLoaderData();
   const [searchResult, setSearchResult] = useState([]);
   const userData = useContext(UserCTX);
+  const navigate = useNavigate();
 
   async function handleSearch(search) {
     if (search.length > 2) {
-      const response = await fetch(`http://localhost:3000/floxly/users/search/${search}`);
+      const response = await fetch(
+        `http://localhost:3000/floxly/users/search/${search}`
+      );
 
       if (response.ok)
-        setSearchResult((await response.json()).filter((user) => userData.user.following.includes(user._id)));
+        setSearchResult(
+          (await response.json()).filter((user) =>
+            userData.user.following.includes(user._id)
+          )
+        );
     } else {
       setSearchResult('');
     }
@@ -25,11 +33,20 @@ export default function BestFriendsPage() {
   return (
     <main className={classes.globalContainer}>
       <div className={classes.listContainer}>
-        <h1>{getLocale('best_friends')}</h1>
+        <h1>
+          <img
+            src={leftArrowIcon}
+            className={classes.back}
+            onClick={() => {
+              navigate('/settings');
+            }}
+          />
+          {getLocale('best_friends')}
+        </h1>
         <div className={classes.list}>
           <div className={classes.inputContainer}>
             <input
-              type="text"
+              type='text'
               placeholder={getLocale('search')}
               onChange={(event) => {
                 handleSearch(event.target.value);
@@ -42,10 +59,18 @@ export default function BestFriendsPage() {
                   <BestFriendRow
                     key={result._id}
                     data={result}
-                    isBestFriends={loaderData.some((user) => user.id === result._id)}
+                    isBestFriends={loaderData.some(
+                      (user) => user.id === result._id
+                    )}
                   />
                 ))
-              : loaderData.map((friend) => <BestFriendRow key={friend._id} data={friend} isBestFriends={true} />)}
+              : loaderData.map((friend) => (
+                  <BestFriendRow
+                    key={friend._id}
+                    data={friend}
+                    isBestFriends={true}
+                  />
+                ))}
           </div>
         </div>
       </div>
@@ -54,7 +79,10 @@ export default function BestFriendsPage() {
 }
 
 export async function loader() {
-  const response = await authFetch('http://localhost:3000/floxly/users/best_friends', { credentials: 'include' });
+  const response = await authFetch(
+    'http://localhost:3000/floxly/users/best_friends',
+    { credentials: 'include' }
+  );
 
   return response;
 }

@@ -39,7 +39,9 @@ export default function SideBar({ title, isRootSideBar, options }) {
               </p>
             </div>
           )}
-          {userData.user.role === 'admin' && width > 1000 && <p className={classes.adminTag}>Admin!</p>}
+          {userData.user.role === 'admin' && width > 1000 && (
+            <p className={classes.adminTag}>Admin!</p>
+          )}
         </>
       ) : (
         <div className={classes.titleContainer}>
@@ -52,19 +54,36 @@ export default function SideBar({ title, isRootSideBar, options }) {
             option.type !== 'sectionTitle' ? (
               <li
                 onClick={option.type === 'button' ? option.onClick : undefined}
-                key={option.route ? option.route + generateRandomString(10) : generateRandomString(10)}
-                style={width < 1000 ? { display: 'flex', justifyContent: 'center' } : undefined}
+                key={
+                  option.route
+                    ? option.route + generateRandomString(10)
+                    : generateRandomString(10)
+                }
+                style={
+                  width < 1000
+                    ? { display: 'flex', justifyContent: 'center' }
+                    : undefined
+                }
               >
                 {option.type === 'link' ? (
                   <NavLink
-                    to={option.routeType === 'static' ? option.route : 'user/' + userData.user.username}
-                    className={({ isActive }) => (isActive ? classes.activeLink : classes.passiveLink)}
+                    to={
+                      option.routeType === 'static'
+                        ? option.route
+                        : 'user/' + userData.user.username
+                    }
+                    className={({ isActive }) =>
+                      isActive ? classes.activeLink : classes.passiveLink
+                    }
                   >
                     {width > 1000 && <div className={classes.indicator}></div>}
                     {option.iconType === 'static' ? (
                       <img src={option.icon} />
                     ) : (
-                      <img src={userData.user.profilePicture} className={classes.picture} />
+                      <img
+                        src={userData.user.profilePicture}
+                        className={classes.picture}
+                      />
                     )}
                     {width > 1000 && <p>{option.label}</p>}
                   </NavLink>
@@ -73,7 +92,10 @@ export default function SideBar({ title, isRootSideBar, options }) {
                     {option.iconType === 'static' ? (
                       <img src={option.icon} />
                     ) : (
-                      <img src={userData.user.profilePicture} className={classes.picture} />
+                      <img
+                        src={userData.user.profilePicture}
+                        className={classes.picture}
+                      />
                     )}
                     {width > 1000 && <p>{option.label}</p>}
                   </>
@@ -91,8 +113,16 @@ export default function SideBar({ title, isRootSideBar, options }) {
             option.place === 'end' ? (
               option.type !== 'sectionTitle' ? (
                 <li
-                  key={option.route ? option.route + generateRandomString(10) : generateRandomString(10)}
-                  onClick={option.type === 'button' ? () => option.onClick(navigate) : undefined}
+                  key={
+                    option.route
+                      ? option.route + generateRandomString(10)
+                      : generateRandomString(10)
+                  }
+                  onClick={
+                    option.type === 'button'
+                      ? () => option.onClick(navigate)
+                      : undefined
+                  }
                 >
                   <img src={option.icon} />
                   <p>{option.label}</p>

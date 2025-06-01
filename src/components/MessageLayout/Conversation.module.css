@@ -152,3 +152,14 @@
 .messageDetails img {
   width: 12px;
 }
+
+.back {
+  width: 35px;
+  cursor: pointer;
+}
+
+@media (min-width: 806px) {
+  .back {
+    display: none;
+  }
+}

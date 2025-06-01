@@ -12,7 +12,9 @@
   font-family: 'Rubik';
   color: var(--foreground-color);
   margin-bottom: 20px;
-  text-align: start;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .globalContainer h2 {
@@ -39,4 +41,18 @@
   border-radius: 5px;
   padding: 8px;
   display: flex;
+}
+
+.back {
+  display: none;
+  width: 30px;
+  aspect-ratio: 1/1;
+  left: 4px;
+  cursor: pointer;
+}
+
+@media (max-width: 1275px) {
+  .back {
+    display: block;
+  }
 }
